@@ -3,13 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<title>ASPRO - ATK STOCK PROFESIONAL</title>
+<title>ASPRO - ATK STOCK PROFESIONAL</title>
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
+<style>
+body { font-family: Arial, sans-serif; padding: 10px; }
+header { font-weight: bold; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center;}
+section { margin-bottom: 20px; }
+input, select, button { margin:5px 0; padding:5px; width:100%; max-width:300px; }
+table { width:100%; border-collapse: collapse; margin-top:10px; }
+th, td { border:1px solid #ccc; padding:5px; text-align:center; }
+button { cursor:pointer; background-color:#4CAF50; color:white; border:none; }
+button:hover { background-color:#45a049; }
+</style>
 </head>
 <body>
 
-<div id="loginPage" class="login-container">
+<div id="loginPage">
     <h2>Login ASPRO</h2>
     <input type="password" id="pinInput" placeholder="Masukkan PIN">
     <button onclick="login()">Login</button>
@@ -18,153 +28,151 @@
 <div id="appPage" style="display:none;">
 
 <header>
-ASPRO (ATK STOCK PROFESIONAL)
-</header>
-    <button onclick="logout()" class="logout">Logout</button>
+<span>ASPRO (ATK STOCK PROFESIONAL)</span>
+<button onclick="logout()">Logout</button>
 </header>
 
 <section class="dashboard">
-    <div class="card">
-        <h3>Total Jenis Barang</h3>
-        <p id="totalBarang">0</p>
-    </div>
-    <div class="card">
-        <h3>Total Transaksi</h3>
-        <p id="totalTransaksi">0</p>
-    </div>
+    <div>Total Jenis Barang: <span id="totalBarang">0</span></div>
+    <div>Total Transaksi: <span id="totalTransaksi">0</span></div>
 </section>
 
 <section>
-    <h2>Tambah / Edit Transaksi</h2>
-    <form id="stokForm">
-        <input type="hidden" id="editIndex">
-
-        <label>Nama Barang</label>
-        <input type="text" id="namaBarang" list="barangList" required>
-        <datalist id="barangList"></datalist>
-
-        <label>Jumlah</label>
-        <input type="number" id="jumlah" required>
-
-        <label>Satuan</label>
-        <input type="text" id="satuan" list="satuanList" placeholder="Contoh: pcs, box, rim" required>
-        <datalist id="satuanList">
-            <option value="pcs">
-            <option value="box">
-            <option value="rim">
-            <option value="pak">
-            <option value="lusin">
-        </datalist>
-
-        <label>Jenis</label>
-        <select id="jenis">
-            <option value="Masuk">Masuk</option>
-            <option value="Keluar">Keluar</option>
-        </select>
-
-        <label>Tanggal</label>
-        <input type="date" id="tanggal" required>
-
-        <button type="submit">Simpan</button>
-    </form>
+<h2>Tambah Transaksi</h2>
+<input type="text" id="itemName" placeholder="Nama Barang">
+<input type="number" id="itemQuantity" placeholder="Jumlah">
+<input type="text" id="itemUnit" placeholder="Satuan (pcs, box, rim)">
+<select id="itemType">
+<option value="Masuk">Masuk</option>
+<option value="Keluar">Keluar</option>
+</select>
+<input type="date" id="itemDate">
+<button onclick="addItemFromForm()">Tambah Barang</button>
 </section>
 
 <section>
-    <h2>Filter Bulan</h2>
-    <input type="month" id="filterBulan">
+<h2>Filter Bulan</h2>
+<input type="month" id="filterBulan" onchange="loadItems()">
 </section>
 
 <section>
-    <h2>Daftar Transaksi</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Nama</th>
-                <th>Jumlah</th>
-                <th>Satuan</th>
-                <th>Jenis</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tabelBody"></tbody>
-    </table>
-
-    <button id="exportCSV">Export CSV</button>
-    <button id="backupBtn">Backup</button>
-    <button id="restoreBtn">Restore</button>
-    <input type="file" id="fileRestore" style="display:none">
-    <button id="resetBtn">Reset</button>
+<h2>Daftar Transaksi</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Tanggal</th><th>Nama</th><th>Jumlah</th><th>Satuan</th><th>Jenis</th>
+</tr>
+</thead>
+<tbody id="itemsTableBody"></tbody>
+</table>
+<button onclick="exportCSV()">Export CSV</button>
 </section>
 
 <section>
-    <h2>Rekap Stok</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Nama Barang</th>
-                <th>Stok</th>
-                <th>Satuan</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="rekapBody"></tbody>
-    </table>
+<h2>Rekap Stok</h2>
+<table>
+<thead>
+<tr>
+<th>Nama Barang</th><th>Stok</th><th>Satuan</th><th>Status</th>
+</tr>
+</thead>
+<tbody id="rekapBody"></tbody>
+</table>
 </section>
 
 </div>
 
-<script src="app.js"></script>
-    <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
-  const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
+const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  async function addItem(name, quantity, unit, type) {
-    const { data, error } = await supabase
-      .from('items')
-      .insert([{ name, quantity, unit, type }]);
-    
-    if (error) {
-      alert("Error: " + error.message);
-    } else {
-      alert("Berhasil menambahkan item!");
-      loadItems();
-    }
-  }
+function login() {
+    const pin = document.getElementById('pinInput').value;
+    if(pin === "1234") { // contoh PIN
+        document.getElementById('loginPage').style.display="none";
+        document.getElementById('appPage').style.display="block";
+        loadItems();
+        loadRekap();
+    } else { alert("PIN salah!"); }
+}
 
-  async function loadItems() {
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('id', { ascending: true });
-    
-    if (error) {
-      console.log("Error:", error.message);
-      return;
-    }
-    
-    const tableBody = document.getElementById('itemsTableBody');
-    tableBody.innerHTML = "";
-    
-    data.forEach(item => {
-      const row = `<tr>
-        <td>${item.id}</td>
-        <td>${item.name}</td>
-        <td>${item.quantity}</td>
-        <td>${item.unit}</td>
-        <td>${item.type}</td>
-        <td>${new Date(item.date).toLocaleString()}</td>
-      </tr>`;
-      tableBody.innerHTML += row;
+function logout() {
+    document.getElementById('loginPage').style.display="block";
+    document.getElementById('appPage').style.display="none";
+}
+
+async function addItem(name, quantity, unit, type, date) {
+    const { data, error } = await supabase.from('items')
+        .insert([{ name, quantity, unit, type, date }]);
+    if(error){ alert("Error: "+error.message); return; }
+    loadItems();
+    loadRekap();
+}
+
+function addItemFromForm() {
+    const name = document.getElementById('itemName').value;
+    const quantity = parseInt(document.getElementById('itemQuantity').value);
+    const unit = document.getElementById('itemUnit').value;
+    const type = document.getElementById('itemType').value;
+    const date = document.getElementById('itemDate').value;
+    if(!name||!quantity||!unit||!type||!date){ alert("Lengkapi semua field!"); return; }
+    addItem(name, quantity, unit, type, date);
+    document.getElementById('itemName').value="";
+    document.getElementById('itemQuantity').value="";
+    document.getElementById('itemUnit').value="";
+    document.getElementById('itemType').value="Masuk";
+    document.getElementById('itemDate').value="";
+}
+
+async function loadItems() {
+    let filterMonth = document.getElementById('filterBulan').value;
+    const { data, error } = await supabase.from('items').select('*').order('id',{ascending:true});
+    if(error){ console.log(error.message); return; }
+    let filtered = data;
+    if(filterMonth){ filtered = data.filter(i=>i.date && i.date.startsWith(filterMonth)); }
+    const tbody = document.getElementById('itemsTableBody');
+    tbody.innerHTML="";
+    filtered.forEach(item=>{
+        tbody.innerHTML+=`<tr>
+<td>${item.id}</td><td>${item.date}</td><td>${item.name}</td><td>${item.quantity}</td><td>${item.unit}</td><td>${item.type}</td>
+</tr>`;
     });
-  }
+    document.getElementById('totalBarang').innerText=[...new Set(filtered.map(i=>i.name))].length;
+    document.getElementById('totalTransaksi').innerText=filtered.length;
+}
 
-  // Load items saat halaman dibuka
-  loadItems();
+async function loadRekap() {
+    const { data, error } = await supabase.from('items').select('*');
+    if(error){ console.log(error.message); return; }
+    const tbody = document.getElementById('rekapBody'); tbody.innerHTML="";
+    const stokMap={};
+    data.forEach(i=>{
+        if(!stokMap[i.name]){ stokMap[i.name]={qty:0, unit:i.unit}; }
+        stokMap[i.name].qty += (i.type==="Masuk"?i.quantity:-i.quantity);
+    });
+    Object.keys(stokMap).forEach(name=>{
+        const stok=stokMap[name].qty;
+        const status=stok>0?"Tersedia":"Habis";
+        tbody.innerHTML+=`<tr><td>${name}</td><td>${stok}</td><td>${stokMap[name].unit}</td><td>${status}</td></tr>`;
+    });
+}
+
+function exportCSV(){
+    const rows=document.querySelectorAll("#itemsTableBody tr");
+    let csv="ID,Tanggal,Nama,Jumlah,Satuan,Jenis\n";
+    rows.forEach(r=>{
+        const cols=r.querySelectorAll("td");
+        csv+=Array.from(cols).map(c=>`"${c.innerText}"`).join(",")+"\n";
+    });
+    const blob=new Blob([csv],{type:"text/csv"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="transaksi.csv"; a.click();
+    URL.revokeObjectURL(url);
+}
+
 </script>
 </body>
 </html>
