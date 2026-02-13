@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f9ff;
+}
+
+header {
+    background: linear-gradient(to right, #4da6ff, #87ceeb);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+}
+
+.logout {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: auto;
+}
+
+section {
+    background: white;
+    margin: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.dashboard {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    background: #e6f3ff;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #4da6ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1e90ff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #87ceeb;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background: #d9efff;
+}
+
+.login-container {
+    max-width: 300px;
+    margin: 120px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.low-stock {
+    color: red;
+    font-weight: bold;
+}
