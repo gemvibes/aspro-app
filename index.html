@@ -17,12 +17,14 @@ button:hover { background:#45a049; }
 </head>
 <body>
 
+<!-- LOGIN PAGE -->
 <div id="loginPage">
 <h2>Login ASPRO</h2>
 <input type="password" id="pinInput" placeholder="Masukkan PIN">
 <button onclick="login()">Login</button>
 </div>
 
+<!-- MAIN APP -->
 <div id="appPage" style="display:none;">
 <header>
 <span>ASPRO (ATK STOCK PROFESIONAL)</span>
@@ -70,6 +72,7 @@ button:hover { background:#45a049; }
 </table>
 </section>
 
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // Supabase
@@ -80,11 +83,16 @@ const supabase=supabase.createClient(supabaseUrl,supabaseKey);
 // ===== LOGIN =====
 function login(){
   const pin=document.getElementById('pinInput').value.trim();
+  // alert untuk debug input
+  alert("PIN yang diketik: " + pin);
   if(pin==="1234"){
+    alert("Login berhasil!");
     document.getElementById('loginPage').style.display="none";
     document.getElementById('appPage').style.display="block";
     loadItems(); loadRekap();
-  } else { alert("PIN salah!"); }
+  } else {
+    alert("PIN salah!");
+  }
 }
 function logout(){
   document.getElementById('loginPage').style.display="block";
