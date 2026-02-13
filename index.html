@@ -88,21 +88,26 @@ const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// ================= LOGIN FIX =================
 function login() {
-    const pin = document.getElementById('pinInput').value;
-    if(pin === "1234") { // contoh PIN
+    const pin = document.getElementById('pinInput').value.trim();
+    if(pin === "1234") { // PIN default
         document.getElementById('loginPage').style.display="none";
         document.getElementById('appPage').style.display="block";
         loadItems();
         loadRekap();
-    } else { alert("PIN salah!"); }
+    } else {
+        alert("PIN salah!");
+    }
 }
 
 function logout() {
     document.getElementById('loginPage').style.display="block";
     document.getElementById('appPage').style.display="none";
+    document.getElementById('pinInput').value = "";
 }
 
+// ================= TRANSAKSI =================
 async function addItem(name, quantity, unit, type, date) {
     const { data, error } = await supabase.from('items')
         .insert([{ name, quantity, unit, type, date }]);
@@ -112,9 +117,9 @@ async function addItem(name, quantity, unit, type, date) {
 }
 
 function addItemFromForm() {
-    const name = document.getElementById('itemName').value;
+    const name = document.getElementById('itemName').value.trim();
     const quantity = parseInt(document.getElementById('itemQuantity').value);
-    const unit = document.getElementById('itemUnit').value;
+    const unit = document.getElementById('itemUnit').value.trim();
     const type = document.getElementById('itemType').value;
     const date = document.getElementById('itemDate').value;
     if(!name||!quantity||!unit||!type||!date){ alert("Lengkapi semua field!"); return; }
@@ -126,14 +131,14 @@ function addItemFromForm() {
     document.getElementById('itemDate').value="";
 }
 
+// ================= LOAD ITEMS =================
 async function loadItems() {
     let filterMonth = document.getElementById('filterBulan').value;
     const { data, error } = await supabase.from('items').select('*').order('id',{ascending:true});
     if(error){ console.log(error.message); return; }
     let filtered = data;
     if(filterMonth){ filtered = data.filter(i=>i.date && i.date.startsWith(filterMonth)); }
-    const tbody = document.getElementById('itemsTableBody');
-    tbody.innerHTML="";
+    const tbody = document.getElementById('itemsTableBody'); tbody.innerHTML="";
     filtered.forEach(item=>{
         tbody.innerHTML+=`<tr>
 <td>${item.id}</td><td>${item.date}</td><td>${item.name}</td><td>${item.quantity}</td><td>${item.unit}</td><td>${item.type}</td>
@@ -143,6 +148,7 @@ async function loadItems() {
     document.getElementById('totalTransaksi').innerText=filtered.length;
 }
 
+// ================= REKAP =================
 async function loadRekap() {
     const { data, error } = await supabase.from('items').select('*');
     if(error){ console.log(error.message); return; }
@@ -159,6 +165,7 @@ async function loadRekap() {
     });
 }
 
+// ================= EXPORT CSV =================
 function exportCSV(){
     const rows=document.querySelectorAll("#itemsTableBody tr");
     let csv="ID,Tanggal,Nama,Jumlah,Satuan,Jenis\n";
@@ -173,6 +180,8 @@ function exportCSV(){
     URL.revokeObjectURL(url);
 }
 
+// ================= INITIAL LOAD =================
+document.addEventListener("DOMContentLoaded",()=>{ loadItems(); loadRekap(); });
 </script>
 </body>
 </html>
