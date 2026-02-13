@@ -116,5 +116,55 @@ ASPRO (ATK STOCK PROFESIONAL)
 </div>
 
 <script src="app.js"></script>
+    <!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
+  const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function addItem(name, quantity, unit, type) {
+    const { data, error } = await supabase
+      .from('items')
+      .insert([{ name, quantity, unit, type }]);
+    
+    if (error) {
+      alert("Error: " + error.message);
+    } else {
+      alert("Berhasil menambahkan item!");
+      loadItems();
+    }
+  }
+
+  async function loadItems() {
+    const { data, error } = await supabase
+      .from('items')
+      .select('*')
+      .order('id', { ascending: true });
+    
+    if (error) {
+      console.log("Error:", error.message);
+      return;
+    }
+    
+    const tableBody = document.getElementById('itemsTableBody');
+    tableBody.innerHTML = "";
+    
+    data.forEach(item => {
+      const row = `<tr>
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${item.quantity}</td>
+        <td>${item.unit}</td>
+        <td>${item.type}</td>
+        <td>${new Date(item.date).toLocaleString()}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  }
+
+  // Load items saat halaman dibuka
+  loadItems();
+</script>
 </body>
 </html>
