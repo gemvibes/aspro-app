@@ -1,153 +1,51 @@
-// ===== INIT SUPABASE =====
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-document.addEventListener('DOMContentLoaded', ()=>{
+async function loadItems(){
+    const { data, error } = await supabase
+        .from("items")
+        .select("*")
+        .order("id", { ascending: true });
 
-    const loginPage = document.getElementById("loginPage");
-    const appPage = document.getElementById("appPage");
-    const loginBtn = document.getElementById("loginBtn");
-
-    loginBtn.addEventListener('click', ()=>{
-        const pin = document.getElementById("pinInput").value;
-        if(pin === "1234"){
-            loginPage.style.display = "none";
-            appPage.style.display = "block";
-            alert("Login berhasil!");
-            loadItems(); // load items setelah login sukses
-        } else {
-            alert("PIN salah!");
-        }
-    });
-
-    window.logout = function(){
-        loginPage.style.display = "block";
-        appPage.style.display = "none";
+    if(error){
+        alert("Gagal load data: " + error.message);
+        return;
     }
 
-    // ===== ADD ITEM =====
-    async function addItem(name, quantity, unit, type, date){
-        const { data, error } = await supabase.from('items').insert([{name, quantity, unit, type, date}]);
-        if(error) { alert("Gagal simpan: "+error.message); return; }
-        alert("Berhasil menambahkan item!");
+    const tbody = document.getElementById("tabelBody");
+    tbody.innerHTML = "";
+
+    data.forEach(item=>{
+        tbody.innerHTML += `
+        <tr>
+            <td>${item.nama}</td>
+            <td>${item.jumlah}</td>
+            <td>${item.satuan}</td>
+            <td>${item.jenis}</td>
+            <td>${item.tanggal}</td>
+        </tr>`;
+    });
+}
+
+document.getElementById("stokForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const payload = {
+        nama: document.getElementById("namaBarang").value,
+        jumlah: parseInt(document.getElementById("jumlah").value),
+        satuan: document.getElementById("satuan").value,
+        jenis: document.getElementById("jenis").value,
+        tanggal: document.getElementById("tanggal").value
+    };
+
+    const { error } = await supabase.from("items").insert([payload]);
+
+    if(error){
+        alert("Gagal simpan: " + error.message);
+    } else {
+        alert("Berhasil disimpan");
         loadItems();
+        document.getElementById("stokForm").reset();
     }
-
-    // ===== LOAD ITEMS =====
-    async function loadItems(){
-        const { data, error } = await supabase.from('items').select('*').order('id',{ascending:true});
-        if(error){ alert("Gagal load data: "+error.message); return; }
-
-        const tableBody = document.getElementById('tabelBody');
-        const barangList = document.getElementById('barangList');
-        tableBody.innerHTML = "";
-        barangList.innerHTML = "";
-
-        document.getElementById('totalBarang').innerText = data.length;
-        document.getElementById('totalTransaksi').innerText = data.length;
-
-        data.forEach((item,index)=>{
-            tableBody.innerHTML += `<tr>
-                <td>${index+1}</td>
-                <td>${item.date}</td>
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>${item.unit}</td>
-                <td>${item.type}</td>
-                <td>
-                    <button onclick="editItem(${item.id})">Edit</button>
-                    <button onclick="deleteItem(${item.id})">Hapus</button>
-                </td>
-            </tr>`;
-            barangList.innerHTML += `<option value="${item.name}">`;
-        });
-    }
-
-    // ===== FORM SUBMIT =====
-    document.getElementById('stokForm').addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const idEdit = document.getElementById('editIndex').value;
-        const name = document.getElementById('namaBarang').value;
-        const quantity = parseInt(document.getElementById('jumlah').value);
-        const unit = document.getElementById('satuan').value;
-        const type = document.getElementById('jenis').value;
-        const date = document.getElementById('tanggal').value;
-
-        if(!name || !quantity || !unit || !type || !date){ alert("Isi semua field!"); return; }
-
-        if(idEdit){
-            const { error } = await supabase.from('items').update({name, quantity, unit, type, date}).eq('id',parseInt(idEdit));
-            if(error){ alert("Gagal update: "+error.message); return; }
-            alert("Update berhasil!");
-            document.getElementById('stokForm').reset();
-            document.getElementById('editIndex').value = "";
-            loadItems();
-        } else {
-            await addItem(name, quantity, unit, type, date);
-            document.getElementById('stokForm').reset();
-        }
-    });
-
-    // ===== EDIT & DELETE =====
-    window.editItem = async function(id){
-        const { data, error } = await supabase.from('items').select('*').eq('id',id);
-        if(error){ alert("Gagal load data untuk edit: "+error.message); return; }
-        if(data && data.length>0){
-            const item = data[0];
-            document.getElementById('editIndex').value=id;
-            document.getElementById('namaBarang').value=item.name;
-            document.getElementById('jumlah').value=item.quantity;
-            document.getElementById('satuan').value=item.unit;
-            document.getElementById('jenis').value=item.type;
-            document.getElementById('tanggal').value=item.date;
-        }
-    }
-
-    window.deleteItem = async function(id){
-        if(confirm("Yakin hapus item ini?")){
-            const { error } = await supabase.from('items').delete().eq('id',id);
-            if(error){ alert("Gagal hapus item: "+error.message); return; }
-            loadItems();
-        }
-    }
-
-    // ===== FILTER BULAN =====
-    document.getElementById('filterBulan').addEventListener('change', async ()=>{
-        const month = document.getElementById('filterBulan').value;
-        const { data, error } = await supabase.from('items').select('*').like('date', month+"%").order('id',{ascending:true});
-        if(error){ alert("Gagal filter: "+error.message); return; }
-        const tableBody = document.getElementById('tabelBody');
-        tableBody.innerHTML="";
-        data.forEach((item,index)=>{
-            tableBody.innerHTML += `<tr>
-                <td>${index+1}</td>
-                <td>${item.date}</td>
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>${item.unit}</td>
-                <td>${item.type}</td>
-                <td>
-                    <button onclick="editItem(${item.id})">Edit</button>
-                    <button onclick="deleteItem(${item.id})">Hapus</button>
-                </td>
-            </tr>`;
-        });
-    });
-
-    // ===== EXPORT CSV =====
-    document.getElementById('exportCSV').addEventListener('click', async ()=>{
-        const { data, error } = await supabase.from('items').select('*');
-        if(error){ alert("Gagal export CSV: "+error.message); return; }
-        let csv = "No,Tanggal,Nama,Jumlah,Satuan,Jenis\n";
-        data.forEach((item,index)=>{
-            csv += `${index+1},${item.date},${item.name},${item.quantity},${item.unit},${item.type}\n`;
-        });
-        const blob = new Blob([csv],{type:'text/csv'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = "aspro_v2_transaksi.csv";
-        link.click();
-    });
-
 });
