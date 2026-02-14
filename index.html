@@ -19,21 +19,26 @@
 <div id="appPage" style="display:none;">
     <h2>ASPRO - ATK STOCK PROFESIONAL</h2>
 
-    <form id="stokForm">
-        <input type="text" id="namaBarang" placeholder="Nama Barang" required>
-        <input type="number" id="jumlah" placeholder="Jumlah" required>
-        <input type="text" id="satuan" placeholder="Satuan" required>
+    <!-- INPUT TRANSAKSI (BUKAN FORM) -->
+    <div id="stokForm">
+        <input type="text" id="namaBarang" placeholder="Nama Barang">
+        <input type="number" id="jumlah" placeholder="Jumlah">
+        <input type="text" id="satuan" placeholder="Satuan (pcs, box, dll)">
         <select id="jenis">
+            <option value="">-- Pilih Jenis --</option>
             <option value="Masuk">Masuk</option>
             <option value="Keluar">Keluar</option>
         </select>
-        <input type="date" id="tanggal" required>
-        <button type="submit">Simpan</button>
-    </form>
+        <input type="date" id="tanggal">
+        <button type="button" onclick="simpanData()">Simpan</button>
+    </div>
 
-    <table border="1">
+    <hr>
+
+    <table border="1" width="100%">
         <thead>
             <tr>
+                <th>No</th>
                 <th>Nama</th>
                 <th>Jumlah</th>
                 <th>Satuan</th>
@@ -45,7 +50,7 @@
     </table>
 </div>
 
-<!-- LOGIN SCRIPT (PALING PENTING) -->
+<!-- LOGIN SCRIPT (PALING STABIL) -->
 <script>
 function doLogin(){
     const pin = document.getElementById("pinInput").value;
@@ -55,7 +60,6 @@ function doLogin(){
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("appPage").style.display = "block";
 
-        // PENTING: baru load data setelah login
         if(typeof loadItems === "function"){
             loadItems();
         }
@@ -65,7 +69,7 @@ function doLogin(){
 }
 </script>
 
-<!-- APP LOGIC -->
+<!-- LOGIC APLIKASI -->
 <script src="app.js"></script>
 
 </body>
