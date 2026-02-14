@@ -4,20 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPRO - ATK STOCK PROFESIONAL</title>
-
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginPage" class="login-container">
     <h2>Login ASPRO</h2>
     <input type="password" id="pinInput" placeholder="Masukkan PIN">
     <button onclick="login()">Login</button>
 </div>
 
-<!-- APLIKASI -->
 <div id="appPage" style="display:none;">
 
 <header>
@@ -37,10 +34,8 @@
 </section>
 
 <section>
-    <h2>Tambah / Edit Transaksi</h2>
+    <h2>Tambah Transaksi</h2>
     <form id="stokForm">
-        <input type="hidden" id="editIndex">
-
         <label>Nama Barang</label>
         <input type="text" id="namaBarang" required>
 
@@ -48,7 +43,7 @@
         <input type="number" id="jumlah" required>
 
         <label>Satuan</label>
-        <input type="text" id="satuan" placeholder="pcs / box / rim" required>
+        <input type="text" id="satuan" required>
 
         <label>Jenis</label>
         <select id="jenis">
@@ -64,11 +59,6 @@
 </section>
 
 <section>
-    <h2>Filter Bulan</h2>
-    <input type="month" id="filterBulan">
-</section>
-
-<section>
     <h2>Daftar Transaksi</h2>
     <table>
         <thead>
@@ -79,7 +69,6 @@
                 <th>Jumlah</th>
                 <th>Satuan</th>
                 <th>Jenis</th>
-                <th>Aksi</th>
             </tr>
         </thead>
         <tbody id="tabelBody"></tbody>
@@ -96,7 +85,6 @@
                 <th>Nama Barang</th>
                 <th>Stok</th>
                 <th>Satuan</th>
-                <th>Status</th>
             </tr>
         </thead>
         <tbody id="rekapBody"></tbody>
@@ -105,7 +93,14 @@
 
 </div>
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- AUTH (LOGIN AMAN) -->
 <script src="auth.js"></script>
+
+<!-- APLIKASI -->
 <script src="app.js"></script>
+
 </body>
 </html>
