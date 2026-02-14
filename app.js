@@ -48,7 +48,6 @@ form.addEventListener("submit", async (e) => {
         tanggal: document.getElementById("tanggal").value
     };
 
-    // Insert ke Supabase
     const { error } = await supabase.from("items").insert([payload]);
 
     if (error) {
