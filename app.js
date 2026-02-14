@@ -59,7 +59,6 @@ async function loadItems() {
 
     data.forEach((item, index) => {
         totalBarang++;
-        // Tabel transaksi
         const row = `<tr>
             <td>${index+1}</td>
             <td>${item.date}</td>
@@ -74,9 +73,7 @@ async function loadItems() {
         </tr>`;
         tableBody.innerHTML += row;
 
-        // Datalist nama barang
-        const option = `<option value="${item.name}">`;
-        barangList.innerHTML += option;
+        barangList.innerHTML += `<option value="${item.name}">`;
     });
 
     document.getElementById('totalBarang').innerText = totalBarang;
@@ -93,7 +90,6 @@ document.getElementById('stokForm').addEventListener('submit', async (e)=>{
 
     await addItem(name, quantity, unit, type, date);
 
-    // Reset form
     document.getElementById('stokForm').reset();
 });
 
@@ -121,7 +117,7 @@ async function deleteItem(id){
 // ===== FILTER BULAN =====
 document.getElementById('filterBulan').addEventListener('change', async ()=>{
     const month = document.getElementById('filterBulan').value;
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('items')
       .select('*')
       .like('date', `${month}%`)
@@ -157,6 +153,6 @@ document.getElementById('exportCSV').addEventListener('click', async ()=>{
     const blob = new Blob([csv], { type: 'text/csv' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = "aspro_transaksi.csv";
+    link.download = "aspro_v2_transaksi.csv";
     link.click();
 });
