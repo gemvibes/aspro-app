@@ -6,17 +6,17 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 window.addEventListener('DOMContentLoaded', function(){
 
   // ===== LOGIN & LOGOUT =====
-  const correctPin = "1234";
   const loginPage = document.getElementById("loginPage");
   const appPage = document.getElementById("appPage");
+  const loginBtn = document.getElementById("loginBtn");
 
-  document.querySelector("#loginPage button").addEventListener('click', ()=>{
+  loginBtn.addEventListener('click', ()=>{
       const pin = document.getElementById("pinInput").value;
-      if(pin === correctPin){
+      if(pin === "1234"){
           loginPage.style.display = "none";
           appPage.style.display = "block";
           alert("Login berhasil!");
-          loadItems(); // panggil loadItems setelah supabase siap & login sukses
+          loadItems();
       } else {
           alert("PIN salah!");
       }
@@ -91,7 +91,6 @@ window.addEventListener('DOMContentLoaded', function(){
       }
 
       if(idEdit){ 
-          // Edit
           try {
               const { error } = await supabase.from('items').update({name, quantity, unit, type, date}).eq('id',parseInt(idEdit));
               if(error) throw error;
@@ -104,7 +103,6 @@ window.addEventListener('DOMContentLoaded', function(){
               alert("Gagal update: "+err.message);
           }
       } else { 
-          // Tambah baru
           await addItem(name, quantity, unit, type, date);
           document.getElementById('stokForm').reset();
       }
