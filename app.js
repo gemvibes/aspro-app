@@ -1,7 +1,9 @@
+// Supabase config
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+// DOM elements
 const form = document.getElementById("stokForm");
 const tabelBody = document.getElementById("tabelBody");
 const rekapBody = document.getElementById("rekapBody");
@@ -10,6 +12,7 @@ const totalTransaksi = document.getElementById("totalTransaksi");
 
 let data = [];
 
+// Load data dari Supabase
 async function loadData() {
     const { data: rows, error } = await supabase
         .from("items")
@@ -17,7 +20,7 @@ async function loadData() {
         .order("tanggal", { ascending: true });
 
     if (error) {
-        alert("ERROR LOAD: " + error.message);
+        alert("Gagal load data: " + error.message);
         return;
     }
 
@@ -25,6 +28,7 @@ async function loadData() {
     render();
 }
 
+// Submit form
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -36,20 +40,19 @@ form.addEventListener("submit", async (e) => {
         tanggal: document.getElementById("tanggal").value
     };
 
-    console.log("KIRIM:", payload);
-
     const { error } = await supabase.from("items").insert([payload]);
 
     if (error) {
-        alert("ERROR SIMPAN: " + error.message);
+        alert("Gagal simpan: " + error.message);
         return;
     }
 
-    alert("Berhasil disimpan");
+    alert("Berhasil disimpan!");
     form.reset();
     loadData();
 });
 
+// Render tabel & rekap
 function render() {
     tabelBody.innerHTML = "";
     rekapBody.innerHTML = "";
@@ -57,6 +60,7 @@ function render() {
     let stok = {};
 
     data.forEach((d, i) => {
+        // Tabel transaksi
         tabelBody.innerHTML += `
             <tr>
                 <td>${i + 1}</td>
@@ -68,7 +72,8 @@ function render() {
             </tr>
         `;
 
-        stok[d.nama] = stok[d.nama] || { jumlah: 0, satuan: d.satuan };
+        // Hitung rekap
+        if (!stok[d.nama]) stok[d.nama] = { jumlah: 0, satuan: d.satuan };
         stok[d.nama].jumlah += d.jenis === "Masuk" ? d.jumlah : -d.jumlah;
     });
 
@@ -86,6 +91,7 @@ function render() {
     totalTransaksi.textContent = data.length;
 }
 
+// Export CSV
 document.getElementById("exportCSV").onclick = () => {
     let csv = "Tanggal,Nama,Jumlah,Satuan,Jenis\n";
     data.forEach(d => {
@@ -95,8 +101,9 @@ document.getElementById("exportCSV").onclick = () => {
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "aspro.csv";
+    a.download = "aspro-stok.csv";
     a.click();
 };
 
+// Load data awal
 loadData();
