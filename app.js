@@ -4,7 +4,6 @@ const correctPin = "1234";
 document.getElementById('loginBtn').addEventListener('click', ()=>{
     const pin = document.getElementById("pinInput").value;
     if(pin === correctPin){
-        // pastikan DOM siap
         window.requestAnimationFrame(()=>{
             document.getElementById("loginPage").style.display = "none";
             document.getElementById("appPage").style.display = "block";
@@ -21,20 +20,16 @@ function logout() {
     document.getElementById("appPage").style.display = "none";
 }
 
-// ===== SUPABASE CONFIG =====
+// ===== SUPABASE =====
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ===== TAMBAH ITEM =====
 async function addItem(name, quantity, unit, type, date) {
-    const { data, error } = await supabase
-      .from('items')
-      .insert([{ name, quantity, unit, type, date }]);
-    
-    if (error) {
-        alert("Error: " + error.message);
-    } else {
+    const { data, error } = await supabase.from('items').insert([{name, quantity, unit, type, date}]);
+    if(error) alert("Error: " + error.message);
+    else {
         alert("Berhasil menambahkan item!");
         loadItems();
     }
@@ -42,26 +37,16 @@ async function addItem(name, quantity, unit, type, date) {
 
 // ===== LOAD ITEMS =====
 async function loadItems() {
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('id', { ascending: true });
-    
-    if (error) {
-        console.log("Error:", error.message);
-        return;
-    }
-    
+    const { data, error } = await supabase.from('items').select('*').order('id',{ascending:true});
+    if(error){ console.log("Error:",error.message); return; }
+
     const tableBody = document.getElementById('tabelBody');
-    tableBody.innerHTML = "";
-
     const barangList = document.getElementById('barangList');
+    tableBody.innerHTML = "";
     barangList.innerHTML = "";
+    document.getElementById('totalBarang').innerText = data.length;
 
-    let totalBarang = 0;
-
-    data.forEach((item, index) => {
-        totalBarang++;
+    data.forEach((item,index)=>{
         const row = `<tr>
             <td>${index+1}</td>
             <td>${item.date}</td>
@@ -75,11 +60,8 @@ async function loadItems() {
             </td>
         </tr>`;
         tableBody.innerHTML += row;
-
         barangList.innerHTML += `<option value="${item.name}">`;
     });
-
-    document.getElementById('totalBarang').innerText = totalBarang;
 }
 
 // ===== FORM SUBMIT =====
@@ -90,28 +72,27 @@ document.getElementById('stokForm').addEventListener('submit', async (e)=>{
     const unit = document.getElementById('satuan').value;
     const type = document.getElementById('jenis').value;
     const date = document.getElementById('tanggal').value;
-
     await addItem(name, quantity, unit, type, date);
     document.getElementById('stokForm').reset();
 });
 
 // ===== EDIT & DELETE =====
 async function editItem(id){
-    const { data } = await supabase.from('items').select('*').eq('id', id);
+    const { data } = await supabase.from('items').select('*').eq('id',id);
     if(data && data.length>0){
         const item = data[0];
-        document.getElementById('editIndex').value = id;
-        document.getElementById('namaBarang').value = item.name;
-        document.getElementById('jumlah').value = item.quantity;
-        document.getElementById('satuan').value = item.unit;
-        document.getElementById('jenis').value = item.type;
-        document.getElementById('tanggal').value = item.date;
+        document.getElementById('editIndex').value=id;
+        document.getElementById('namaBarang').value=item.name;
+        document.getElementById('jumlah').value=item.quantity;
+        document.getElementById('satuan').value=item.unit;
+        document.getElementById('jenis').value=item.type;
+        document.getElementById('tanggal').value=item.date;
     }
 }
 
 async function deleteItem(id){
     if(confirm("Yakin hapus item ini?")){
-        await supabase.from('items').delete().eq('id', id);
+        await supabase.from('items').delete().eq('id',id);
         loadItems();
     }
 }
@@ -119,15 +100,9 @@ async function deleteItem(id){
 // ===== FILTER BULAN =====
 document.getElementById('filterBulan').addEventListener('change', async ()=>{
     const month = document.getElementById('filterBulan').value;
-    const { data } = await supabase
-      .from('items')
-      .select('*')
-      .like('date', `${month}%`)
-      .order('id', { ascending: true });
-
+    const { data } = await supabase.from('items').select('*').like('date', `${month}%`).order('id',{ascending:true});
     const tableBody = document.getElementById('tabelBody');
-    tableBody.innerHTML = "";
-
+    tableBody.innerHTML="";
     data.forEach((item,index)=>{
         const row = `<tr>
             <td>${index+1}</td>
