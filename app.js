@@ -1,7 +1,7 @@
-// ===== INIT SUPABASE =====
+// ===== SUPABASE INIT =====
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ===== LOAD DATA =====
 async function loadItems(){
@@ -11,61 +11,48 @@ async function loadItems(){
         .order("id", { ascending: true });
 
     if(error){
-        alert("Gagal load data: " + error.message);
+        alert("Load gagal: " + error.message);
         return;
     }
 
     const tbody = document.getElementById("tabelBody");
     tbody.innerHTML = "";
 
-    data.forEach((item, index) => {
+    data.forEach((item, i)=>{
         tbody.innerHTML += `
         <tr>
-            <td>${index + 1}</td>
+            <td>${i+1}</td>
             <td>${item.nama}</td>
             <td>${item.jumlah}</td>
             <td>${item.satuan}</td>
             <td>${item.jenis}</td>
             <td>${item.tanggal}</td>
-        </tr>
-        `;
+        </tr>`;
     });
 }
 
-// ===== SIMPAN DATA (ANTI RELOAD 100%) =====
+// ===== SIMPAN DATA =====
 async function simpanData(){
-    const nama = document.getElementById("namaBarang").value.trim();
-    const jumlah = document.getElementById("jumlah").value;
-    const satuan = document.getElementById("satuan").value.trim();
-    const jenis = document.getElementById("jenis").value;
-    const tanggal = document.getElementById("tanggal").value;
+    const payload = {
+        nama: namaBarang.value.trim(),
+        jumlah: parseInt(jumlah.value),
+        satuan: satuan.value.trim(),
+        jenis: jenis.value,
+        tanggal: tanggal.value
+    };
 
-    if(!nama || !jumlah || !satuan || !jenis || !tanggal){
-        alert("Semua field wajib diisi");
+    if(Object.values(payload).some(v => !v)){
+        alert("Lengkapi semua data");
         return;
     }
-
-    const payload = {
-        nama: nama,
-        jumlah: parseInt(jumlah),
-        satuan: satuan,
-        jenis: jenis,
-        tanggal: tanggal
-    };
 
     const { error } = await supabase.from("items").insert([payload]);
 
     if(error){
-        alert("Gagal simpan: " + error.message);
+        alert("Simpan gagal: " + error.message);
     } else {
-        alert("Data berhasil disimpan");
+        alert("Berhasil disimpan");
         loadItems();
-
-        // reset input
-        document.getElementById("namaBarang").value = "";
-        document.getElementById("jumlah").value = "";
-        document.getElementById("satuan").value = "";
-        document.getElementById("jenis").value = "";
-        document.getElementById("tanggal").value = "";
+        stokForm.reset();
     }
 }
