@@ -8,78 +8,65 @@
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="loginPage" class="login-container">
     <h2>Login ASPRO</h2>
     <input type="password" id="pinInput" placeholder="Masukkan PIN">
-    <button id="loginBtn">Login</button>
+    <button onclick="doLogin()">Login</button>
 </div>
 
+<!-- APLIKASI -->
 <div id="appPage" style="display:none;">
-    <header>
-        ASPRO (ATK STOCK PROFESIONAL)
-        <button onclick="logout()" class="logout">Logout</button>
-    </header>
+    <h2>ASPRO - ATK STOCK PROFESIONAL</h2>
 
-    <section class="dashboard">
-        <div class="card">
-            <h3>Total Jenis Barang</h3>
-            <p id="totalBarang">0</p>
-        </div>
-        <div class="card">
-            <h3>Total Transaksi</h3>
-            <p id="totalTransaksi">0</p>
-        </div>
-    </section>
+    <form id="stokForm">
+        <input type="text" id="namaBarang" placeholder="Nama Barang" required>
+        <input type="number" id="jumlah" placeholder="Jumlah" required>
+        <input type="text" id="satuan" placeholder="Satuan" required>
+        <select id="jenis">
+            <option value="Masuk">Masuk</option>
+            <option value="Keluar">Keluar</option>
+        </select>
+        <input type="date" id="tanggal" required>
+        <button type="submit">Simpan</button>
+    </form>
 
-    <section>
-        <h2>Tambah / Edit Transaksi</h2>
-        <form id="stokForm">
-            <input type="hidden" id="editIndex">
-            <label>Nama Barang</label>
-            <input type="text" id="namaBarang" list="barangList" required>
-            <datalist id="barangList"></datalist>
-            <label>Jumlah</label>
-            <input type="number" id="jumlah" required>
-            <label>Satuan</label>
-            <input type="text" id="satuan" list="satuanList" required>
-            <datalist id="satuanList">
-                <option value="pcs">
-                <option value="box">
-                <option value="rim">
-                <option value="pak">
-                <option value="lusin">
-            </datalist>
-            <label>Jenis</label>
-            <select id="jenis">
-                <option value="Masuk">Masuk</option>
-                <option value="Keluar">Keluar</option>
-            </select>
-            <label>Tanggal</label>
-            <input type="date" id="tanggal" required>
-            <button type="submit">Simpan</button>
-        </form>
-    </section>
-
-    <section>
-        <h2>Filter Bulan</h2>
-        <input type="month" id="filterBulan">
-    </section>
-
-    <section>
-        <h2>Daftar Transaksi</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th><th>Tanggal</th><th>Nama</th><th>Jumlah</th><th>Satuan</th><th>Jenis</th><th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="tabelBody"></tbody>
-        </table>
-        <button id="exportCSV">Export CSV</button>
-    </section>
-
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Jumlah</th>
+                <th>Satuan</th>
+                <th>Jenis</th>
+                <th>Tanggal</th>
+            </tr>
+        </thead>
+        <tbody id="tabelBody"></tbody>
+    </table>
 </div>
 
+<!-- LOGIN SCRIPT (PALING PENTING) -->
+<script>
+function doLogin(){
+    const pin = document.getElementById("pinInput").value;
+
+    if(pin === "1234"){
+        alert("Login berhasil");
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("appPage").style.display = "block";
+
+        // PENTING: baru load data setelah login
+        if(typeof loadItems === "function"){
+            loadItems();
+        }
+    } else {
+        alert("PIN salah");
+    }
+}
+</script>
+
+<!-- APP LOGIC -->
 <script src="app.js"></script>
+
 </body>
 </html>
