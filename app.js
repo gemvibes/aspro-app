@@ -2,7 +2,6 @@ window.addEventListener('DOMContentLoaded', function(){
 
   // ===== LOGIN & LOGOUT =====
   const correctPin = "1234";
-
   const loginPage = document.getElementById("loginPage");
   const appPage = document.getElementById("appPage");
 
@@ -68,9 +67,8 @@ window.addEventListener('DOMContentLoaded', function(){
       });
   }
 
-  // ===== FORM SUBMIT =====
-  document.getElementById('stokForm').addEventListener('submit', async (e)=>{
-      e.preventDefault(); // ✨ mencegah reload page
+  // ===== SIMPAN TRANSAKSI BUTTON =====
+  document.getElementById('simpanBtn').addEventListener('click', async ()=>{
       const name = document.getElementById('namaBarang').value;
       const quantity = parseInt(document.getElementById('jumlah').value);
       const unit = document.getElementById('satuan').value;
@@ -135,8 +133,8 @@ window.addEventListener('DOMContentLoaded', function(){
       const blob = new Blob([csv], { type: 'text/csv' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = "aspro_v2_transaksi.csv";
+      link.download = "aspro_v3_transaksi.csv";
       link.click();
   });
 
-}); // DOMContentLoaded
+});
