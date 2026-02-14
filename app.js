@@ -1,123 +1,162 @@
-// ========================
-// Supabase config
-// ========================
+// ===== LOGIN & LOGOUT =====
+const correctPin = "1234";
+
+function login() {
+    const pin = document.getElementById("pinInput").value;
+    if(pin === correctPin){
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("appPage").style.display = "block";
+        alert("Login berhasil!");
+        loadItems();
+    } else {
+        alert("PIN salah!");
+    }
+}
+
+function logout() {
+    document.getElementById("loginPage").style.display = "block";
+    document.getElementById("appPage").style.display = "none";
+}
+
+// ===== SUPABASE CONFIG =====
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// ========================
-// DOM elements
-// ========================
-const form = document.getElementById("stokForm");
-const tabelBody = document.getElementById("tabelBody");
-const rekapBody = document.getElementById("rekapBody");
-const totalBarang = document.getElementById("totalBarang");
-const totalTransaksi = document.getElementById("totalTransaksi");
-
-let data = [];
-
-// ========================
-// Load data dari Supabase
-// ========================
-async function loadData() {
-    const { data: rows, error } = await supabase
-        .from("items")
-        .select("*")
-        .order("tanggal", { ascending: true });
-
+// ===== TAMBAH ITEM =====
+async function addItem(name, quantity, unit, type, date) {
+    const { data, error } = await supabase
+      .from('items')
+      .insert([{ name, quantity, unit, type, date }]);
+    
     if (error) {
-        alert("Gagal load data: " + error.message);
-        return;
+        alert("Error: " + error.message);
+    } else {
+        alert("Berhasil menambahkan item!");
+        loadItems();
     }
-
-    data = rows || [];
-    render();
 }
 
-// ========================
-// Submit form
-// ========================
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const payload = {
-        nama: document.getElementById("namaBarang").value,
-        jumlah: Number(document.getElementById("jumlah").value),
-        satuan: document.getElementById("satuan").value,
-        jenis: document.getElementById("jenis").value,
-        tanggal: document.getElementById("tanggal").value
-    };
-
-    const { error } = await supabase.from("items").insert([payload]);
-
+// ===== LOAD ITEMS =====
+async function loadItems() {
+    const { data, error } = await supabase
+      .from('items')
+      .select('*')
+      .order('id', { ascending: true });
+    
     if (error) {
-        alert("Gagal simpan: " + error.message);
+        console.log("Error:", error.message);
         return;
     }
+    
+    const tableBody = document.getElementById('tabelBody');
+    tableBody.innerHTML = "";
 
-    alert("Berhasil disimpan!");
-    form.reset();
-    loadData();
+    const barangList = document.getElementById('barangList');
+    barangList.innerHTML = "";
+
+    let totalBarang = 0;
+
+    data.forEach((item, index) => {
+        totalBarang++;
+        // Tabel transaksi
+        const row = `<tr>
+            <td>${index+1}</td>
+            <td>${item.date}</td>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>${item.unit}</td>
+            <td>${item.type}</td>
+            <td>
+                <button onclick="editItem(${item.id})">Edit</button>
+                <button onclick="deleteItem(${item.id})">Hapus</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+
+        // Datalist nama barang
+        const option = `<option value="${item.name}">`;
+        barangList.innerHTML += option;
+    });
+
+    document.getElementById('totalBarang').innerText = totalBarang;
+}
+
+// ===== FORM SUBMIT =====
+document.getElementById('stokForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('namaBarang').value;
+    const quantity = parseInt(document.getElementById('jumlah').value);
+    const unit = document.getElementById('satuan').value;
+    const type = document.getElementById('jenis').value;
+    const date = document.getElementById('tanggal').value;
+
+    await addItem(name, quantity, unit, type, date);
+
+    // Reset form
+    document.getElementById('stokForm').reset();
 });
 
-// ========================
-// Render tabel & rekap
-// ========================
-function render() {
-    tabelBody.innerHTML = "";
-    rekapBody.innerHTML = "";
-
-    let stok = {};
-
-    data.forEach((d, i) => {
-        // Tabel transaksi
-        tabelBody.innerHTML += `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${d.tanggal}</td>
-                <td>${d.nama}</td>
-                <td>${d.jumlah}</td>
-                <td>${d.satuan}</td>
-                <td>${d.jenis}</td>
-            </tr>
-        `;
-
-        // Hitung rekap
-        if (!stok[d.nama]) stok[d.nama] = { jumlah: 0, satuan: d.satuan };
-        stok[d.nama].jumlah += d.jenis === "Masuk" ? d.jumlah : -d.jumlah;
-    });
-
-    Object.keys(stok).forEach(nama => {
-        rekapBody.innerHTML += `
-            <tr>
-                <td>${nama}</td>
-                <td>${stok[nama].jumlah}</td>
-                <td>${stok[nama].satuan}</td>
-            </tr>
-        `;
-    });
-
-    totalBarang.textContent = Object.keys(stok).length;
-    totalTransaksi.textContent = data.length;
+// ===== EDIT & DELETE =====
+async function editItem(id){
+    const { data } = await supabase.from('items').select('*').eq('id', id);
+    if(data && data.length>0){
+        const item = data[0];
+        document.getElementById('editIndex').value = id;
+        document.getElementById('namaBarang').value = item.name;
+        document.getElementById('jumlah').value = item.quantity;
+        document.getElementById('satuan').value = item.unit;
+        document.getElementById('jenis').value = item.type;
+        document.getElementById('tanggal').value = item.date;
+    }
 }
 
-// ========================
-// Export CSV
-// ========================
-document.getElementById("exportCSV").onclick = () => {
-    let csv = "Tanggal,Nama,Jumlah,Satuan,Jenis\n";
-    data.forEach(d => {
-        csv += `${d.tanggal},${d.nama},${d.jumlah},${d.satuan},${d.jenis}\n`;
+async function deleteItem(id){
+    if(confirm("Yakin hapus item ini?")){
+        await supabase.from('items').delete().eq('id', id);
+        loadItems();
+    }
+}
+
+// ===== FILTER BULAN =====
+document.getElementById('filterBulan').addEventListener('change', async ()=>{
+    const month = document.getElementById('filterBulan').value;
+    const { data, error } = await supabase
+      .from('items')
+      .select('*')
+      .like('date', `${month}%`)
+      .order('id', { ascending: true });
+
+    const tableBody = document.getElementById('tabelBody');
+    tableBody.innerHTML = "";
+
+    data.forEach((item,index)=>{
+        const row = `<tr>
+            <td>${index+1}</td>
+            <td>${item.date}</td>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>${item.unit}</td>
+            <td>${item.type}</td>
+            <td>
+                <button onclick="editItem(${item.id})">Edit</button>
+                <button onclick="deleteItem(${item.id})">Hapus</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
     });
+});
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "aspro-stok.csv";
-    a.click();
-};
-
-// ========================
-// Load data awal
-// ========================
-loadData();
+// ===== EXPORT CSV =====
+document.getElementById('exportCSV').addEventListener('click', async ()=>{
+    const { data } = await supabase.from('items').select('*');
+    let csv = "No,Tanggal,Nama,Jumlah,Satuan,Jenis\n";
+    data.forEach((item,index)=>{
+        csv += `${index+1},${item.date},${item.name},${item.quantity},${item.unit},${item.type}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = "aspro_transaksi.csv";
+    link.click();
+});
