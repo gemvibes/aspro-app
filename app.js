@@ -17,31 +17,35 @@ async function loadData() {
         .order("tanggal", { ascending: true });
 
     if (error) {
-        alert("Gagal ambil data dari server");
+        alert("ERROR LOAD: " + error.message);
         return;
     }
 
-    data = rows;
+    data = rows || [];
     render();
 }
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const item = {
-        nama: namaBarang.value,
-        jumlah: parseInt(jumlah.value),
-        satuan: satuan.value,
-        jenis: jenis.value,
-        tanggal: tanggal.value
+    const payload = {
+        nama: document.getElementById("namaBarang").value,
+        jumlah: Number(document.getElementById("jumlah").value),
+        satuan: document.getElementById("satuan").value,
+        jenis: document.getElementById("jenis").value,
+        tanggal: document.getElementById("tanggal").value
     };
 
-    const { error } = await supabase.from("items").insert([item]);
+    console.log("KIRIM:", payload);
+
+    const { error } = await supabase.from("items").insert([payload]);
+
     if (error) {
-        alert("Gagal simpan data");
+        alert("ERROR SIMPAN: " + error.message);
         return;
     }
 
+    alert("Berhasil disimpan");
     form.reset();
     loadData();
 });
@@ -91,7 +95,7 @@ document.getElementById("exportCSV").onclick = () => {
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "aspro-stok.csv";
+    a.download = "aspro.csv";
     a.click();
 };
 
