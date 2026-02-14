@@ -3,11 +3,14 @@ window.addEventListener('DOMContentLoaded', function(){
   // ===== LOGIN & LOGOUT =====
   const correctPin = "1234";
 
+  const loginPage = document.getElementById("loginPage");
+  const appPage = document.getElementById("appPage");
+
   document.getElementById('loginBtn').addEventListener('click', ()=>{
       const pin = document.getElementById("pinInput").value;
       if(pin === correctPin){
-          document.getElementById("loginPage").style.display = "none";
-          document.getElementById("appPage").style.display = "block";
+          loginPage.style.display = "none";
+          appPage.style.display = "block";
           alert("Login berhasil!");
           loadItems();
       } else {
@@ -16,8 +19,8 @@ window.addEventListener('DOMContentLoaded', function(){
   });
 
   window.logout = function() {
-      document.getElementById("loginPage").style.display = "block";
-      document.getElementById("appPage").style.display = "none";
+      loginPage.style.display = "block";
+      appPage.style.display = "none";
   }
 
   // ===== SUPABASE =====
@@ -67,12 +70,13 @@ window.addEventListener('DOMContentLoaded', function(){
 
   // ===== FORM SUBMIT =====
   document.getElementById('stokForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
+      e.preventDefault(); // ✨ mencegah reload page
       const name = document.getElementById('namaBarang').value;
       const quantity = parseInt(document.getElementById('jumlah').value);
       const unit = document.getElementById('satuan').value;
       const type = document.getElementById('jenis').value;
       const date = document.getElementById('tanggal').value;
+
       await addItem(name, quantity, unit, type, date);
       document.getElementById('stokForm').reset();
   });
