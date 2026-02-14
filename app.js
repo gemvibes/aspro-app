@@ -1,9 +1,13 @@
+// ========================
 // Supabase config
+// ========================
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+// ========================
 // DOM elements
+// ========================
 const form = document.getElementById("stokForm");
 const tabelBody = document.getElementById("tabelBody");
 const rekapBody = document.getElementById("rekapBody");
@@ -12,7 +16,9 @@ const totalTransaksi = document.getElementById("totalTransaksi");
 
 let data = [];
 
+// ========================
 // Load data dari Supabase
+// ========================
 async function loadData() {
     const { data: rows, error } = await supabase
         .from("items")
@@ -28,7 +34,9 @@ async function loadData() {
     render();
 }
 
+// ========================
 // Submit form
+// ========================
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -40,6 +48,7 @@ form.addEventListener("submit", async (e) => {
         tanggal: document.getElementById("tanggal").value
     };
 
+    // Insert ke Supabase
     const { error } = await supabase.from("items").insert([payload]);
 
     if (error) {
@@ -52,7 +61,9 @@ form.addEventListener("submit", async (e) => {
     loadData();
 });
 
+// ========================
 // Render tabel & rekap
+// ========================
 function render() {
     tabelBody.innerHTML = "";
     rekapBody.innerHTML = "";
@@ -91,7 +102,9 @@ function render() {
     totalTransaksi.textContent = data.length;
 }
 
+// ========================
 // Export CSV
+// ========================
 document.getElementById("exportCSV").onclick = () => {
     let csv = "Tanggal,Nama,Jumlah,Satuan,Jenis\n";
     data.forEach(d => {
@@ -105,5 +118,7 @@ document.getElementById("exportCSV").onclick = () => {
     a.click();
 };
 
+// ========================
 // Load data awal
+// ========================
 loadData();
