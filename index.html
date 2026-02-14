@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPRO - ATK STOCK PROFESIONAL</title>
 <link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -16,101 +15,68 @@
 </div>
 
 <div id="appPage" style="display:none;">
+    <header>
+        ASPRO (ATK STOCK PROFESIONAL)
+        <button onclick="logout()" class="logout">Logout</button>
+    </header>
 
-<header>
-ASPRO (ATK STOCK PROFESIONAL)
-</header>
-<button onclick="logout()" class="logout">Logout</button>
+    <section class="dashboard">
+        <div class="card">
+            <h3>Total Jenis Barang</h3>
+            <p id="totalBarang">0</p>
+        </div>
+        <div class="card">
+            <h3>Total Transaksi</h3>
+            <p id="totalTransaksi">0</p>
+        </div>
+    </section>
 
-<section class="dashboard">
-    <div class="card">
-        <h3>Total Jenis Barang</h3>
-        <p id="totalBarang">0</p>
-    </div>
-    <div class="card">
-        <h3>Total Transaksi</h3>
-        <p id="totalTransaksi">0</p>
-    </div>
-</section>
+    <section>
+        <h2>Tambah / Edit Transaksi</h2>
+        <form id="stokForm">
+            <input type="hidden" id="editIndex">
+            <label>Nama Barang</label>
+            <input type="text" id="namaBarang" list="barangList" required>
+            <datalist id="barangList"></datalist>
+            <label>Jumlah</label>
+            <input type="number" id="jumlah" required>
+            <label>Satuan</label>
+            <input type="text" id="satuan" list="satuanList" required>
+            <datalist id="satuanList">
+                <option value="pcs">
+                <option value="box">
+                <option value="rim">
+                <option value="pak">
+                <option value="lusin">
+            </datalist>
+            <label>Jenis</label>
+            <select id="jenis">
+                <option value="Masuk">Masuk</option>
+                <option value="Keluar">Keluar</option>
+            </select>
+            <label>Tanggal</label>
+            <input type="date" id="tanggal" required>
+            <button type="submit">Simpan</button>
+        </form>
+    </section>
 
-<section>
-    <h2>Tambah / Edit Transaksi</h2>
-    <form id="stokForm">
-        <input type="hidden" id="editIndex">
+    <section>
+        <h2>Filter Bulan</h2>
+        <input type="month" id="filterBulan">
+    </section>
 
-        <label>Nama Barang</label>
-        <input type="text" id="namaBarang" list="barangList" required>
-        <datalist id="barangList"></datalist>
-
-        <label>Jumlah</label>
-        <input type="number" id="jumlah" required>
-
-        <label>Satuan</label>
-        <input type="text" id="satuan" list="satuanList" placeholder="Contoh: pcs, box, rim" required>
-        <datalist id="satuanList">
-            <option value="pcs">
-            <option value="box">
-            <option value="rim">
-            <option value="pak">
-            <option value="lusin">
-        </datalist>
-
-        <label>Jenis</label>
-        <select id="jenis">
-            <option value="Masuk">Masuk</option>
-            <option value="Keluar">Keluar</option>
-        </select>
-
-        <label>Tanggal</label>
-        <input type="date" id="tanggal" required>
-
-        <button type="submit">Simpan</button>
-    </form>
-</section>
-
-<section>
-    <h2>Filter Bulan</h2>
-    <input type="month" id="filterBulan">
-</section>
-
-<section>
-    <h2>Daftar Transaksi</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Nama</th>
-                <th>Jumlah</th>
-                <th>Satuan</th>
-                <th>Jenis</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tabelBody"></tbody>
-    </table>
-
-    <button id="exportCSV">Export CSV</button>
-    <button id="backupBtn">Backup</button>
-    <button id="restoreBtn">Restore</button>
-    <input type="file" id="fileRestore" style="display:none">
-    <button id="resetBtn">Reset</button>
-</section>
-
-<section>
-    <h2>Rekap Stok</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Nama Barang</th>
-                <th>Stok</th>
-                <th>Satuan</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="rekapBody"></tbody>
-    </table>
-</section>
+    <section>
+        <h2>Daftar Transaksi</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th><th>Tanggal</th><th>Nama</th><th>Jumlah</th><th>Satuan</th><th>Jenis</th><th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelBody"></tbody>
+        </table>
+        <button id="exportCSV">Export CSV</button>
+    </section>
 
 </div>
 
