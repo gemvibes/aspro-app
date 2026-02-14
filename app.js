@@ -1,17 +1,20 @@
 // ===== LOGIN & LOGOUT =====
 const correctPin = "1234";
 
-function login() {
+document.getElementById('loginBtn').addEventListener('click', ()=>{
     const pin = document.getElementById("pinInput").value;
     if(pin === correctPin){
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("appPage").style.display = "block";
-        alert("Login berhasil!");
-        loadItems();
+        // pastikan DOM siap
+        window.requestAnimationFrame(()=>{
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("appPage").style.display = "block";
+            alert("Login berhasil!");
+            loadItems();
+        });
     } else {
         alert("PIN salah!");
     }
-}
+});
 
 function logout() {
     document.getElementById("loginPage").style.display = "block";
@@ -89,7 +92,6 @@ document.getElementById('stokForm').addEventListener('submit', async (e)=>{
     const date = document.getElementById('tanggal').value;
 
     await addItem(name, quantity, unit, type, date);
-
     document.getElementById('stokForm').reset();
 });
 
