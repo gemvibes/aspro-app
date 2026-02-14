@@ -1,3 +1,8 @@
+// ===== INIT SUPABASE =====
+const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
+const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 window.addEventListener('DOMContentLoaded', function(){
 
   // ===== LOGIN & LOGOUT =====
@@ -5,13 +10,13 @@ window.addEventListener('DOMContentLoaded', function(){
   const loginPage = document.getElementById("loginPage");
   const appPage = document.getElementById("appPage");
 
-  document.getElementById('loginBtn').addEventListener('click', ()=>{
+  document.querySelector("#loginPage button").addEventListener('click', ()=>{
       const pin = document.getElementById("pinInput").value;
       if(pin === correctPin){
           loginPage.style.display = "none";
           appPage.style.display = "block";
           alert("Login berhasil!");
-          loadItems();
+          loadItems(); // panggil loadItems setelah supabase siap & login sukses
       } else {
           alert("PIN salah!");
       }
@@ -21,11 +26,6 @@ window.addEventListener('DOMContentLoaded', function(){
       loginPage.style.display = "block";
       appPage.style.display = "none";
   }
-
-  // ===== SUPABASE =====
-  const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
-  const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   // ===== TAMBAH ITEM =====
   async function addItem(name, quantity, unit, type, date) {
@@ -76,7 +76,9 @@ window.addEventListener('DOMContentLoaded', function(){
   }
 
   // ===== SIMPAN TRANSAKSI =====
-  document.getElementById('simpanBtn').addEventListener('click', async ()=>{
+  document.getElementById('stokForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const idEdit = document.getElementById('editIndex').value;
       const name = document.getElementById('namaBarang').value;
       const quantity = parseInt(document.getElementById('jumlah').value);
       const unit = document.getElementById('satuan').value;
@@ -88,31 +90,56 @@ window.addEventListener('DOMContentLoaded', function(){
           return;
       }
 
-      console.log("Klik simpan diterima"); // 🔹 debug event
-      await addItem(name, quantity, unit, type, date);
-      document.getElementById('stokForm').reset();
+      if(idEdit){ 
+          // Edit
+          try {
+              const { error } = await supabase.from('items').update({name, quantity, unit, type, date}).eq('id',parseInt(idEdit));
+              if(error) throw error;
+              alert("Update berhasil!");
+              document.getElementById('stokForm').reset();
+              document.getElementById('editIndex').value = "";
+              loadItems();
+          } catch(err){
+              console.error("Update error:", err);
+              alert("Gagal update: "+err.message);
+          }
+      } else { 
+          // Tambah baru
+          await addItem(name, quantity, unit, type, date);
+          document.getElementById('stokForm').reset();
+      }
   });
 
   // ===== EDIT & DELETE =====
   window.editItem = async function(id){
-      const { data, error } = await supabase.from('items').select('*').eq('id',id);
-      if(error){ alert("Edit error: "+error.message); return; }
-      if(data && data.length>0){
-          const item = data[0];
-          document.getElementById('editIndex').value=id;
-          document.getElementById('namaBarang').value=item.name;
-          document.getElementById('jumlah').value=item.quantity;
-          document.getElementById('satuan').value=item.unit;
-          document.getElementById('jenis').value=item.type;
-          document.getElementById('tanggal').value=item.date;
+      try{
+          const { data, error } = await supabase.from('items').select('*').eq('id',id);
+          if(error) throw error;
+          if(data && data.length>0){
+              const item = data[0];
+              document.getElementById('editIndex').value=id;
+              document.getElementById('namaBarang').value=item.name;
+              document.getElementById('jumlah').value=item.quantity;
+              document.getElementById('satuan').value=item.unit;
+              document.getElementById('jenis').value=item.type;
+              document.getElementById('tanggal').value=item.date;
+          }
+      } catch(err){
+          console.error("Edit error:", err);
+          alert("Gagal load data untuk edit: "+err.message);
       }
   }
 
   window.deleteItem = async function(id){
       if(confirm("Yakin hapus item ini?")){
-          const { error } = await supabase.from('items').delete().eq('id',id);
-          if(error) alert("Hapus error: "+error.message);
-          loadItems();
+          try{
+              const { error } = await supabase.from('items').delete().eq('id',id);
+              if(error) throw error;
+              loadItems();
+          } catch(err){
+              console.error("Hapus error:", err);
+              alert("Gagal hapus item: "+err.message);
+          }
       }
   }
 
