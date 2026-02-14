@@ -3,26 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASPRO-V2 - ATK STOCK PROFESIONAL</title>
+<title>ASPRO - ATK STOCK PROFESIONAL</title>
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
-<style>
-  #appPage { display:none; }
-</style>
 </head>
 <body>
 
-<div id="loginPage">
-  <h2>Login ASPRO-V2</h2>
-  <input type="password" id="pinInput" placeholder="Masukkan PIN">
-  <button id="loginBtn">Login</button>
+<div id="loginPage" class="login-container">
+    <h2>Login ASPRO</h2>
+    <input type="password" id="pinInput" placeholder="Masukkan PIN">
+    <button id="loginBtn">Login</button>
 </div>
 
-<div id="appPage">
+<div id="appPage" style="display:none;">
+
 <header>
-ASPRO-V2 (ATK STOCK PROFESIONAL)
-<button onclick="logout()" class="logout">Logout</button>
+ASPRO (ATK STOCK PROFESIONAL)
 </header>
+<button onclick="logout()" class="logout">Logout</button>
 
 <section class="dashboard">
     <div class="card">
@@ -39,6 +37,7 @@ ASPRO-V2 (ATK STOCK PROFESIONAL)
     <h2>Tambah / Edit Transaksi</h2>
     <form id="stokForm">
         <input type="hidden" id="editIndex">
+
         <label>Nama Barang</label>
         <input type="text" id="namaBarang" list="barangList" required>
         <datalist id="barangList"></datalist>
@@ -47,7 +46,7 @@ ASPRO-V2 (ATK STOCK PROFESIONAL)
         <input type="number" id="jumlah" required>
 
         <label>Satuan</label>
-        <input type="text" id="satuan" list="satuanList" placeholder="pcs, box, rim" required>
+        <input type="text" id="satuan" list="satuanList" placeholder="Contoh: pcs, box, rim" required>
         <datalist id="satuanList">
             <option value="pcs">
             <option value="box">
@@ -65,8 +64,7 @@ ASPRO-V2 (ATK STOCK PROFESIONAL)
         <label>Tanggal</label>
         <input type="date" id="tanggal" required>
 
-        <!-- Tombol simpan diubah type="button" -->
-        <button type="button" id="simpanBtn">Simpan</button>
+        <button type="submit">Simpan</button>
     </form>
 </section>
 
@@ -91,7 +89,12 @@ ASPRO-V2 (ATK STOCK PROFESIONAL)
         </thead>
         <tbody id="tabelBody"></tbody>
     </table>
+
     <button id="exportCSV">Export CSV</button>
+    <button id="backupBtn">Backup</button>
+    <button id="restoreBtn">Restore</button>
+    <input type="file" id="fileRestore" style="display:none">
+    <button id="resetBtn">Reset</button>
 </section>
 
 <section>
@@ -111,7 +114,6 @@ ASPRO-V2 (ATK STOCK PROFESIONAL)
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
