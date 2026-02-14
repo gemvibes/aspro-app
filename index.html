@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASPRO - ATK STOCK PROFESIONAL</title>
+
 <link rel="stylesheet" href="style.css">
+
+<!-- SUPABASE WAJIB ADA -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -17,60 +21,68 @@
 
 <!-- APLIKASI -->
 <div id="appPage" style="display:none;">
-    <h2>ASPRO - ATK STOCK PROFESIONAL</h2>
 
-    <!-- INPUT TRANSAKSI (BUKAN FORM) -->
-    <div id="stokForm">
-        <input type="text" id="namaBarang" placeholder="Nama Barang">
-        <input type="number" id="jumlah" placeholder="Jumlah">
-        <input type="text" id="satuan" placeholder="Satuan (pcs, box, dll)">
-        <select id="jenis">
-            <option value="">-- Pilih Jenis --</option>
-            <option value="Masuk">Masuk</option>
-            <option value="Keluar">Keluar</option>
-        </select>
-        <input type="date" id="tanggal">
-        <button type="button" onclick="simpanData()">Simpan</button>
-    </div>
+<header>
+    ASPRO (ATK STOCK PROFESIONAL)
+</header>
 
-    <hr>
+<!-- FORM TETAP FORM (UI ASLI), TAPI ANTI RELOAD -->
+<form id="stokForm" onsubmit="return false;">
+    <label>Nama Barang</label>
+    <input type="text" id="namaBarang" required>
 
-    <table border="1" width="100%">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>Jumlah</th>
-                <th>Satuan</th>
-                <th>Jenis</th>
-                <th>Tanggal</th>
-            </tr>
-        </thead>
-        <tbody id="tabelBody"></tbody>
-    </table>
+    <label>Jumlah</label>
+    <input type="number" id="jumlah" required>
+
+    <label>Satuan</label>
+    <input type="text" id="satuan" required>
+
+    <label>Jenis</label>
+    <select id="jenis" required>
+        <option value="">-- Pilih --</option>
+        <option value="Masuk">Masuk</option>
+        <option value="Keluar">Keluar</option>
+    </select>
+
+    <label>Tanggal</label>
+    <input type="date" id="tanggal" required>
+
+    <button type="button" onclick="simpanData()">Simpan</button>
+</form>
+
+<hr>
+
+<table border="1" width="100%">
+<thead>
+<tr>
+    <th>No</th>
+    <th>Nama</th>
+    <th>Jumlah</th>
+    <th>Satuan</th>
+    <th>Jenis</th>
+    <th>Tanggal</th>
+</tr>
+</thead>
+<tbody id="tabelBody"></tbody>
+</table>
+
 </div>
 
-<!-- LOGIN SCRIPT (PALING STABIL) -->
+<!-- LOGIN SCRIPT -->
 <script>
 function doLogin(){
     const pin = document.getElementById("pinInput").value;
-
     if(pin === "1234"){
         alert("Login berhasil");
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("appPage").style.display = "block";
-
-        if(typeof loadItems === "function"){
-            loadItems();
-        }
+        loginPage.style.display = "none";
+        appPage.style.display = "block";
+        loadItems();
     } else {
         alert("PIN salah");
     }
 }
 </script>
 
-<!-- LOGIC APLIKASI -->
 <script src="app.js"></script>
-
 </body>
 </html>
