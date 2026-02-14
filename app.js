@@ -1,7 +1,9 @@
+// ===== INIT SUPABASE =====
 const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
 const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// ===== LOAD DATA =====
 async function loadItems(){
     const { data, error } = await supabase
         .from("items")
@@ -16,27 +18,39 @@ async function loadItems(){
     const tbody = document.getElementById("tabelBody");
     tbody.innerHTML = "";
 
-    data.forEach(item=>{
+    data.forEach((item, index) => {
         tbody.innerHTML += `
         <tr>
+            <td>${index + 1}</td>
             <td>${item.nama}</td>
             <td>${item.jumlah}</td>
             <td>${item.satuan}</td>
             <td>${item.jenis}</td>
             <td>${item.tanggal}</td>
-        </tr>`;
+        </tr>
+        `;
     });
 }
 
-document.getElementById("stokForm").addEventListener("submit", async function(e){
-    e.preventDefault();
+// ===== SIMPAN DATA (ANTI RELOAD 100%) =====
+async function simpanData(){
+    const nama = document.getElementById("namaBarang").value.trim();
+    const jumlah = document.getElementById("jumlah").value;
+    const satuan = document.getElementById("satuan").value.trim();
+    const jenis = document.getElementById("jenis").value;
+    const tanggal = document.getElementById("tanggal").value;
+
+    if(!nama || !jumlah || !satuan || !jenis || !tanggal){
+        alert("Semua field wajib diisi");
+        return;
+    }
 
     const payload = {
-        nama: document.getElementById("namaBarang").value,
-        jumlah: parseInt(document.getElementById("jumlah").value),
-        satuan: document.getElementById("satuan").value,
-        jenis: document.getElementById("jenis").value,
-        tanggal: document.getElementById("tanggal").value
+        nama: nama,
+        jumlah: parseInt(jumlah),
+        satuan: satuan,
+        jenis: jenis,
+        tanggal: tanggal
     };
 
     const { error } = await supabase.from("items").insert([payload]);
@@ -44,8 +58,14 @@ document.getElementById("stokForm").addEventListener("submit", async function(e)
     if(error){
         alert("Gagal simpan: " + error.message);
     } else {
-        alert("Berhasil disimpan");
+        alert("Data berhasil disimpan");
         loadItems();
-        document.getElementById("stokForm").reset();
+
+        // reset input
+        document.getElementById("namaBarang").value = "";
+        document.getElementById("jumlah").value = "";
+        document.getElementById("satuan").value = "";
+        document.getElementById("jenis").value = "";
+        document.getElementById("tanggal").value = "";
     }
-});
+}
