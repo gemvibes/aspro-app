@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Cek Sesi Login
     if (localStorage.getItem("aspro_auth") === "true") {
-        // Jika sudah login tapi belum ada nama petugas (misal clear cache), minta lagi
+        // Jika sudah login tapi nama petugas kosong (cache cleared), minta lagi
         if (!currentPetugas) {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('petugasOverlay').style.display = 'flex';
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. Tombol Login PIN
+    // 3. Login dengan PIN
     document.getElementById('btnLogin').onclick = () => {
         if (document.getElementById('pinInput').value === "1234") {
             localStorage.setItem("aspro_auth", "true");
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { alert("PIN Salah!"); }
     };
 
-    // 4. Tombol Set Nama Petugas
+    // 4. Simpan Nama Petugas (Log Audit)
     document.getElementById('btnSetPetugas').onclick = () => {
         const val = document.getElementById('inputNamaPetugas').value.trim();
         if (val) {
@@ -50,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Logout
     document.getElementById('btnLogout').onclick = () => {
         localStorage.removeItem("aspro_auth");
-        localStorage.removeItem("aspro_petugas"); // Hapus sesi petugas juga agar aman
+        localStorage.removeItem("aspro_petugas"); // Hapus sesi petugas agar aman
         location.reload();
     };
 
-    // 6. Utilitas Lain
+    // 6. Event Listeners Lain
     document.getElementById('btnTheme').onclick = toggleTheme;
     document.getElementById('btnSimpan').onclick = simpanData;
     document.getElementById('btnBatal').onclick = resetForm;
@@ -103,7 +103,7 @@ async function loadItems() {
         filtered.forEach(item => {
             const isIn = item.jenis === 'Masuk';
             isIn ? tIn += item.jumlah : tOut += item.jumlah;
-            // Bersihkan tanggal dari T00:00:00
+            // Format tanggal bersih YYYY-MM-DD
             const tgl = item.tanggal ? item.tanggal.split('T')[0] : "-";
 
             const row = document.createElement('tr');
@@ -163,7 +163,7 @@ function editData(item) {
     document.getElementById('jenis').value = item.jenis;
     document.getElementById('tanggal').value = item.tanggal.split('T')[0];
     
-    // Panggil ulang icon agar muncul di judul yang baru diubah innerHTML-nya
+    // Refresh Icon
     lucide.createIcons();
     window.scrollTo({top:0, behavior:'smooth'});
 }
