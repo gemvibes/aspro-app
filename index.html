@@ -3,76 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASPRO - ATK STOCK</title>
+    <title>ASPRO-V2 ATK Stock Profesional</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
     <div id="loginPage" class="login-container">
-        <div style="font-size: 50px; margin-bottom: 10px;">🔐</div>
-        <h2>LOGIN ASPRO</h2>
-        <p>Masukkan PIN Keamanan</p>
-        <input type="password" id="pinInput" placeholder="PIN (1234)" inputmode="numeric" style="text-align:center; font-size:20px;">
-        <button id="btnLogin" style="margin-top: 15px; font-weight: bold;">MASUK</button>
+        <div class="main-logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 12L15 10M17 8L18 7" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1>ASPRO-V2</h1>
+        <p>ATK Stock Profesional</p>
+        
+        <div class="login-box">
+            <input type="password" id="pinInput" placeholder="Masukkan PIN Keamanan" inputmode="numeric">
+            <button id="btnLogin">MASUK SISTEM</button>
+        </div>
     </div>
 
     <div id="appPage" style="display:none;">
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px;">
-                <span>📦 <b>ASPRO</b> SYSTEM</span>
-                <button id="btnLogout" style="width: auto; background: #ff4d4d; padding: 5px 15px; font-size: 12px;">Keluar</button>
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:8px">
+                        <path d="M20 7L12 3L4 7L12 11L20 7Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M4 17L12 21L20 17V7L12 11L4 7V17Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                    <b>ASPRO-V2</b>
+                </div>
+                <button id="btnLogout" class="btn-out">LOGOUT</button>
             </div>
         </header>
 
-        <section>
-            <h3>📝 Input Stok</h3>
-            <form id="stokForm">
-                <label>Nama Barang</label>
-                <input type="text" id="namaBarang" placeholder="Nama ATK..." required>
-
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Jumlah</label>
-                        <input type="number" id="jumlah" placeholder="0" required>
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Satuan</label>
-                        <input type="text" id="satuan" placeholder="Pcs/Rim" required>
-                    </div>
+        <div class="main-content">
+            <div class="summary-grid">
+                <div class="card-mini in">
+                    <small>Barang Masuk</small>
+                    <h2 id="summaryMasuk">0</h2>
                 </div>
-
-                <label>Jenis Transaksi</label>
-                <select id="jenis" required>
-                    <option value="Masuk">🟢 Barang Masuk</option>
-                    <option value="Keluar">🔴 Barang Keluar</option>
-                </select>
-
-                <label>Tanggal</label>
-                <input type="date" id="tanggal" required>
-
-                <button type="button" id="btnSimpan" style="margin-top: 10px; background: #28a745;">💾 SIMPAN DATA</button>
-            </form>
-        </section>
-
-        <section>
-            <h3>📊 Riwayat Data</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Barang</th>
-                            <th>Qty</th>
-                            <th>Tipe</th>
-                            <th>Tgl</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelBody">
-                        <tr><td colspan="4">Memuat data...</td></tr>
-                    </tbody>
-                </table>
+                <div class="card-mini out">
+                    <small>Barang Keluar</small>
+                    <h2 id="summaryKeluar">0</h2>
+                </div>
             </div>
-        </section>
+
+            <section class="panel">
+                <h3>📝 Input Transaksi</h3>
+                <form id="stokForm">
+                    <input type="text" id="namaBarang" placeholder="Nama Barang..." required>
+                    <div class="row">
+                        <input type="number" id="jumlah" placeholder="Jumlah" required>
+                        <input type="text" id="satuan" placeholder="Satuan" required>
+                    </div>
+                    <select id="jenis">
+                        <option value="Masuk">🟢 Barang Masuk</option>
+                        <option value="Keluar">🔵 Barang Keluar</option>
+                    </select>
+                    <input type="date" id="tanggal" required>
+                    <button type="button" id="btnSimpan" class="btn-save">💾 SIMPAN</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h3>📊 Riwayat Stok</h3>
+                    <button id="btnExport" class="btn-xls">📥 EXCEL</button>
+                </div>
+                <input type="text" id="cariBarang" placeholder="Cari barang..." class="search-input">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Barang</th>
+                                <th>Qty</th>
+                                <th>Tanggal</th>
+                                <th>#</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </div>
 
     <script src="app.js"></script>
