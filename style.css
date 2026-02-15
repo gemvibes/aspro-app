@@ -28,12 +28,11 @@ body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: var(-
 
 /* LOGIN */
 .login-wrapper { display: flex; height: 100vh; align-items: center; justify-content: center; }
-.login-box { text-align: center; width: 300px; padding: 40px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.login-box { text-align: center; width: 320px; padding: 40px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
 
-/* LAYOUT SPLIT SCREEN */
+/* LAYOUT */
 header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 12px 24px; position: sticky; top: 0; z-index: 100; }
 .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: auto; }
-
 .split-container { display: flex; max-width: 1400px; margin: 24px auto; gap: 24px; padding: 0 24px; }
 
 /* SIDE PANEL (30%) */
@@ -47,21 +46,14 @@ header { background: var(--bg-card); border-bottom: 1px solid var(--border); pad
 
 /* TABLE */
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { background: var(--bg-body); padding: 14px; text-align: left; color: var(--text-muted); font-weight: 600; }
+th { background: var(--border); padding: 14px; text-align: left; color: var(--text-main); font-weight: 600; }
 td { padding: 14px; border-bottom: 1px solid var(--border); }
 
-/* UI ELEMENTS */
 input, select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; background: var(--bg-card); color: var(--text-main); }
 .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
 .btn-outline { background: var(--border); color: var(--text-main); border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-right: 8px; }
 
-/* SUMMARY */
 .summary-box { display: flex; gap: 12px; margin-top: 16px; }
 .stat-item { flex: 1; padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-.stat-item h2 { margin: 8px 0 0 0; font-size: 20px; }
 
-@media (max-width: 900px) {
-    .split-container { flex-direction: column; }
-    .side-panel { width: 100%; }
-    .side-panel .panel-card { position: static; }
-}
+@media (max-width: 900px) { .split-container { flex-direction: column; } .side-panel { width: 100%; } .side-panel .panel-card { position: static; } }
