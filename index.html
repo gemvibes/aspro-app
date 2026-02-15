@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASPRO-V2 ATK Stock Profesional</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,85 +10,99 @@
 </head>
 <body>
 
-    <div id="loginPage" class="login-container">
-        <div class="main-logo">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 12L15 10M17 8L18 7" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </div>
-        <h1>ASPRO-V2</h1>
-        <p>ATK Stock Profesional</p>
-        
+    <div id="loginPage" class="login-wrapper">
         <div class="login-box">
-            <input type="password" id="pinInput" placeholder="Masukkan PIN Keamanan" inputmode="numeric">
-            <button id="btnLogin">MASUK SISTEM</button>
+            <h1>ASPRO-V2</h1>
+            <p>ATK Stock Profesional</p>
+            <input type="password" id="pinInput" placeholder="PIN Keamanan">
+            <button id="btnLogin">Login</button>
         </div>
     </div>
 
     <div id="appPage" style="display:none;">
         <header>
-            <div class="nav-content">
-                <div class="nav-brand">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:8px">
-                        <path d="M20 7L12 3L4 7L12 11L20 7Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="M4 17L12 21L20 17V7L12 11L4 7V17Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
-                    <b>ASPRO-V2</b>
+            <div class="header-content">
+                <span class="brand">📦 ASPRO-V2</span>
+                <div class="header-btns">
+                    <button id="btnExport" class="btn-secondary">📥 Export Excel</button>
+                    <button id="btnLogout" class="btn-danger">Logout</button>
                 </div>
-                <button id="btnLogout" class="btn-out">LOGOUT</button>
             </div>
         </header>
 
-        <div class="main-content">
-            <div class="summary-grid">
-                <div class="card-mini in">
-                    <small>Barang Masuk</small>
-                    <h2 id="summaryMasuk">0</h2>
-                </div>
-                <div class="card-mini out">
-                    <small>Barang Keluar</small>
-                    <h2 id="summaryKeluar">0</h2>
-                </div>
-            </div>
+        <div class="split-container">
+            <aside class="side-panel">
+                <div class="panel-card">
+                    <h3 id="formTitle">📝 Transaksi Baru</h3>
+                    <form id="stokForm">
+                        <input type="hidden" id="editId">
+                        
+                        <label>Nama Barang</label>
+                        <input type="text" id="namaBarang" required>
 
-            <section class="panel">
-                <h3>📝 Input Transaksi</h3>
-                <form id="stokForm">
-                    <input type="text" id="namaBarang" placeholder="Nama Barang..." required>
-                    <div class="row">
-                        <input type="number" id="jumlah" placeholder="Jumlah" required>
-                        <input type="text" id="satuan" placeholder="Satuan" required>
+                        <div class="grid-2">
+                            <div>
+                                <label>Jumlah</label>
+                                <input type="number" id="jumlah" required>
+                            </div>
+                            <div>
+                                <label>Satuan</label>
+                                <input type="text" id="satuan" placeholder="Pcs/Rim" required>
+                            </div>
+                        </div>
+
+                        <label>Jenis Transaksi</label>
+                        <select id="jenis">
+                            <option value="Masuk">🟢 Barang Masuk</option>
+                            <option value="Keluar">🔵 Barang Keluar</option>
+                        </select>
+
+                        <label>Tanggal</label>
+                        <input type="date" id="tanggal" required>
+
+                        <button type="button" id="btnSimpan" class="btn-primary">💾 Simpan Data</button>
+                        <button type="button" id="btnBatal" class="btn-light" style="display:none;">Batal Edit</button>
+                    </form>
+                </div>
+
+                <div class="summary-box">
+                    <div class="stat-item in">
+                        <small>Total Masuk</small>
+                        <h2 id="sumMasuk">0</h2>
                     </div>
-                    <select id="jenis">
-                        <option value="Masuk">🟢 Barang Masuk</option>
-                        <option value="Keluar">🔵 Barang Keluar</option>
-                    </select>
-                    <input type="date" id="tanggal" required>
-                    <button type="button" id="btnSimpan" class="btn-save">💾 SIMPAN</button>
-                </form>
-            </section>
-
-            <section class="panel">
-                <div class="panel-head">
-                    <h3>📊 Riwayat Stok</h3>
-                    <button id="btnExport" class="btn-xls">📥 EXCEL</button>
+                    <div class="stat-item out">
+                        <small>Total Keluar</small>
+                        <h2 id="sumKeluar">0</h2>
+                    </div>
                 </div>
-                <input type="text" id="cariBarang" placeholder="Cari barang..." class="search-input">
-                <div class="table-container">
+            </aside>
+
+            <main class="main-panel">
+                <div class="filter-bar">
+                    <input type="text" id="cariBarang" placeholder="Cari nama barang..." class="search-flex">
+                    <select id="filterJenis">
+                        <option value="Semua">Semua Jenis</option>
+                        <option value="Masuk">Masuk</option>
+                        <option value="Keluar">Keluar</option>
+                    </select>
+                    <input type="month" id="filterBulan">
+                </div>
+
+                <div class="table-card">
                     <table>
                         <thead>
                             <tr>
                                 <th>Barang</th>
                                 <th>Qty</th>
+                                <th>Jenis</th>
                                 <th>Tanggal</th>
-                                <th>#</th>
+                                <th style="width: 80px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tabelBody"></tbody>
                     </table>
                 </div>
-            </section>
+            </main>
         </div>
     </div>
 
