@@ -3,30 +3,59 @@ const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI";
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let isEditing = false;
+let currentPetugas = localStorage.getItem("aspro_petugas") || "";
 
 document.addEventListener('DOMContentLoaded', () => {
-    const currentTheme = localStorage.getItem('aspro_theme') || 'light';
-    document.body.setAttribute('data-theme', currentTheme);
-    document.getElementById('btnTheme').innerText = currentTheme === 'light' ? "🌙 Dark Mode" : "☀️ Light Mode";
+    // 1. Load Theme
+    const theme = localStorage.getItem('aspro_theme') || 'light';
+    document.body.setAttribute('data-theme', theme);
 
-    if (localStorage.getItem("aspro_auth") === "true") showApp();
+    // 2. Cek Sesi Login
+    if (localStorage.getItem("aspro_auth") === "true") {
+        // Jika sudah login tapi belum ada nama petugas (misal clear cache), minta lagi
+        if (!currentPetugas) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('petugasOverlay').style.display = 'flex';
+        } else {
+            showApp();
+        }
+    }
 
+    // 3. Tombol Login PIN
     document.getElementById('btnLogin').onclick = () => {
         if (document.getElementById('pinInput').value === "1234") {
             localStorage.setItem("aspro_auth", "true");
-            showApp();
+            document.getElementById('loginPage').style.display = 'none';
+            
+            // Cek apakah di PC ini sudah ada nama petugas tersimpan?
+            if (currentPetugas) {
+                showApp();
+            } else {
+                document.getElementById('petugasOverlay').style.display = 'flex';
+            }
         } else { alert("PIN Salah!"); }
     };
 
-    document.getElementById('btnLogout').onclick = () => { localStorage.removeItem("aspro_auth"); location.reload(); };
-
-    document.getElementById('btnTheme').onclick = () => {
-        const theme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('aspro_theme', theme);
-        document.getElementById('btnTheme').innerText = theme === 'light' ? "🌙 Dark Mode" : "☀️ Light Mode";
+    // 4. Tombol Set Nama Petugas
+    document.getElementById('btnSetPetugas').onclick = () => {
+        const val = document.getElementById('inputNamaPetugas').value.trim();
+        if (val) {
+            currentPetugas = val;
+            localStorage.setItem("aspro_petugas", val);
+            document.getElementById('petugasOverlay').style.display = 'none';
+            showApp();
+        } else { alert("Mohon isi nama petugas!"); }
     };
 
+    // 5. Logout
+    document.getElementById('btnLogout').onclick = () => {
+        localStorage.removeItem("aspro_auth");
+        localStorage.removeItem("aspro_petugas"); // Hapus sesi petugas juga agar aman
+        location.reload();
+    };
+
+    // 6. Utilitas Lain
+    document.getElementById('btnTheme').onclick = toggleTheme;
     document.getElementById('btnSimpan').onclick = simpanData;
     document.getElementById('btnBatal').onclick = resetForm;
     document.getElementById('cariBarang').oninput = loadItems;
@@ -34,15 +63,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnExport').onclick = exportExcel;
 });
 
+function toggleTheme() {
+    const newTheme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('aspro_theme', newTheme);
+}
+
 function showApp() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('appPage').style.display = 'block';
+    document.getElementById('displayPetugas').innerText = "👤 " + currentPetugas;
     document.getElementById('tanggal').valueAsDate = new Date();
     loadItems();
 }
 
 async function loadItems() {
     const tbody = document.getElementById("tabelBody");
+    const dataList = document.getElementById("listBarang");
     const search = document.getElementById('cariBarang').value.toLowerCase();
     const fJenis = document.getElementById('filterJenis').value;
 
@@ -53,15 +90,20 @@ async function loadItems() {
         const { data, error } = await query;
         if (error) throw error;
 
-        let totalIn = 0, totalOut = 0;
+        // --- AUTO SUGGEST LOGIC ---
+        // Mengambil nama unik untuk saran input
+        const uniqueNames = [...new Set(data.map(i => i.nama))];
+        dataList.innerHTML = uniqueNames.map(name => `<option value="${name}">`).join("");
+
+        let tIn = 0, tOut = 0;
         tbody.innerHTML = "";
+        
         const filtered = data.filter(i => i.nama.toLowerCase().includes(search));
 
         filtered.forEach(item => {
             const isIn = item.jenis === 'Masuk';
-            isIn ? totalIn += item.jumlah : totalOut += item.jumlah;
-
-            // FIX TANGGAL: Potong jam/menit
+            isIn ? tIn += item.jumlah : tOut += item.jumlah;
+            // Bersihkan tanggal dari T00:00:00
             const tgl = item.tanggal ? item.tanggal.split('T')[0] : "-";
 
             const row = document.createElement('tr');
@@ -71,6 +113,7 @@ async function loadItems() {
                 <td>${item.jumlah} <small>${item.satuan}</small></td>
                 <td><small>${item.jenis}</small></td>
                 <td>${tgl}</td>
+                <td style="font-size:12px; color:var(--text-muted);">${item.petugas || '-'}</td>
                 <td style="text-align:center">
                     <button onclick='editData(${JSON.stringify(item)})' style="border:none; background:none; cursor:pointer;">✏️</button>
                     <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:var(--danger); margin-left:10px;">🗑️</button>
@@ -79,8 +122,8 @@ async function loadItems() {
             tbody.appendChild(row);
         });
 
-        document.getElementById('sumMasuk').innerText = totalIn;
-        document.getElementById('sumKeluar').innerText = totalOut;
+        document.getElementById('sumMasuk').innerText = tIn;
+        document.getElementById('sumKeluar').innerText = tOut;
     } catch (e) { console.error(e); }
 }
 
@@ -91,76 +134,80 @@ async function simpanData() {
         jumlah: parseInt(document.getElementById('jumlah').value),
         satuan: document.getElementById('satuan').value.trim(),
         jenis: document.getElementById('jenis').value,
-        tanggal: document.getElementById('tanggal').value
+        tanggal: document.getElementById('tanggal').value,
+        petugas: currentPetugas // Ambil nama dari sesi login
     };
 
-    if (!payload.nama || isNaN(payload.jumlah)) return alert("Data tidak lengkap!");
+    if (!payload.nama || isNaN(payload.jumlah)) return alert("Data belum lengkap!");
 
     try {
-        if (isEditing) { await _supabase.from("items").update(payload).eq('id', id); }
-        else { await _supabase.from("items").insert([payload]); }
+        if (isEditing) { 
+            await _supabase.from("items").update(payload).eq('id', id); 
+        } else { 
+            await _supabase.from("items").insert([payload]); 
+        }
         resetForm(); loadItems();
-    } catch (e) { alert("Gagal Simpan"); }
+    } catch (e) { alert("Gagal Simpan. Pastikan kolom 'petugas' ada di Supabase!"); }
 }
 
 function editData(item) {
     isEditing = true;
-    document.getElementById('formTitle').innerText = "✏️ Edit Transaksi";
+    document.getElementById('formTitle').innerHTML = "<i data-lucide='edit-2' style='width:18px;'></i> Edit Data";
     document.getElementById('btnSimpan').innerText = "Update Data";
     document.getElementById('btnBatal').style.display = "block";
+    
     document.getElementById('editId').value = item.id;
     document.getElementById('namaBarang').value = item.nama;
     document.getElementById('jumlah').value = item.jumlah;
     document.getElementById('satuan').value = item.satuan;
     document.getElementById('jenis').value = item.jenis;
     document.getElementById('tanggal').value = item.tanggal.split('T')[0];
+    
+    // Panggil ulang icon agar muncul di judul yang baru diubah innerHTML-nya
+    lucide.createIcons();
     window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function resetForm() {
     isEditing = false;
-    document.getElementById('formTitle').innerText = "📝 Transaksi Baru";
+    document.getElementById('formTitle').innerHTML = "<i data-lucide='file-plus-2' style='width:18px;'></i> Transaksi";
     document.getElementById('btnSimpan').innerText = "Simpan Data";
     document.getElementById('btnBatal').style.display = "none";
     document.getElementById('stokForm').reset();
     document.getElementById('tanggal').valueAsDate = new Date();
+    lucide.createIcons();
 }
 
 async function hapusData(id) {
-    if (confirm("Hapus data?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); }
+    if (confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); }
 }
 
-// FIX EXCEL: Menambahkan Sisa Stok Otomatis
 async function exportExcel() {
     try {
-        const { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
-        if (error) throw error;
-
-        // Sheet 1: Riwayat Transaksi
+        const { data } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
+        const wb = XLSX.utils.book_new();
+        
+        // Sheet 1: Riwayat
         const riwayat = data.map(i => ({
             "Tanggal": i.tanggal.split('T')[0],
             "Nama Barang": i.nama,
             "Jenis": i.jenis,
             "Jumlah": i.jumlah,
-            "Satuan": i.satuan
+            "Satuan": i.satuan,
+            "Petugas": i.petugas || "-"
         }));
 
-        // Sheet 2: Perhitungan Sisa Stok
+        // Sheet 2: Sisa Stok
         const stokMap = {};
         data.forEach(i => {
-            if (!stokMap[i.nama]) {
-                stokMap[i.nama] = { "Nama Barang": i.nama, "Total Masuk": 0, "Total Keluar": 0, "Sisa Stok": 0, "Satuan": i.satuan };
-            }
+            if (!stokMap[i.nama]) stokMap[i.nama] = { "Nama Barang": i.nama, "Total Masuk": 0, "Total Keluar": 0, "Sisa Stok": 0, "Satuan": i.satuan };
             if (i.jenis === "Masuk") stokMap[i.nama]["Total Masuk"] += i.jumlah;
             else stokMap[i.nama]["Total Keluar"] += i.jumlah;
-            
             stokMap[i.nama]["Sisa Stok"] = stokMap[i.nama]["Total Masuk"] - stokMap[i.nama]["Total Keluar"];
         });
-        const sisaStok = Object.values(stokMap);
 
-        const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayat), "Riwayat Transaksi");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sisaStok), "Laporan Sisa Stok");
-        XLSX.writeFile(wb, `ASPRO_Laporan_${new Date().toISOString().split('T')[0]}.xlsx`);
-    } catch (e) { alert("Export Gagal!"); }
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(Object.values(stokMap)), "Laporan Sisa Stok");
+        XLSX.writeFile(wb, `ASPRO_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch (e) { alert("Gagal Export"); }
 }
