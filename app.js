@@ -4,38 +4,57 @@ const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let isEditing = false;
 
+// 1. INISIALISASI & THEME
 document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem("aspro_v2") === "true") showApp();
+    // Load Theme
+    const savedTheme = localStorage.getItem('aspro_theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    updateThemeButton(savedTheme);
 
+    // Cek Session
+    if (localStorage.getItem("aspro_auth") === "true") showApp();
+
+    // Event Handler Login
     document.getElementById('btnLogin').onclick = () => {
         if (document.getElementById('pinInput').value === "1234") {
-            localStorage.setItem("aspro_v2", "true");
+            localStorage.setItem("aspro_auth", "true");
             showApp();
         } else { alert("PIN Salah!"); }
     };
 
-    document.getElementById('btnLogout').onclick = () => {
-        localStorage.removeItem("aspro_v2");
-        location.reload();
-    };
+    // Logout & Theme Toggle
+    document.getElementById('btnLogout').onclick = () => { localStorage.removeItem("aspro_auth"); location.reload(); };
+    document.getElementById('btnThemeToggle').onclick = toggleTheme;
 
+    // Form & Filter
     document.getElementById('btnSimpan').onclick = simpanData;
     document.getElementById('btnBatal').onclick = resetForm;
-    
-    // Listeners Filter
-    document.getElementById('cariBarang').onkeyup = loadItems;
+    document.getElementById('cariBarang').oninput = loadItems;
     document.getElementById('filterJenis').onchange = loadItems;
     document.getElementById('filterBulan').onchange = loadItems;
     document.getElementById('btnExport').onclick = exportExcel;
 });
 
+// 2. FUNGSI TEMA
+function toggleTheme() {
+    const current = document.body.getAttribute('data-theme');
+    const target = current === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', target);
+    localStorage.setItem('aspro_theme', target);
+    updateThemeButton(target);
+}
+
+function updateThemeButton(theme) {
+    document.getElementById('btnThemeToggle').innerText = theme === 'light' ? "🌙 Mode Gelap" : "☀️ Mode Terang";
+}
+
+// 3. CORE LOGIC
 function showApp() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('appPage').style.display = 'block';
     document.getElementById('tanggal').valueAsDate = new Date();
-    // Default filter bulan ke bulan ini
-    const now = new Date();
-    document.getElementById('filterBulan').value = now.toISOString().slice(0, 7);
+    // Default filter bulan ke bulan ini tapi bisa dikosongkan jika ingin lihat semua data
+    document.getElementById('filterBulan').value = new Date().toISOString().slice(0, 7);
     loadItems();
 }
 
@@ -43,13 +62,15 @@ async function loadItems() {
     const tbody = document.getElementById("tabelBody");
     const search = document.getElementById('cariBarang').value.toLowerCase();
     const fJenis = document.getElementById('filterJenis').value;
-    const fBulan = document.getElementById('filterBulan').value;
+    const fBulan = document.getElementById('filterBulan').value; // format YYYY-MM
 
     try {
-        let query = _supabase.from("items").select("*").order("id", { ascending: false });
+        let query = _supabase.from("items").select("*").order("tanggal", { ascending: false });
 
         if (fJenis !== "Semua") query = query.eq('jenis', fJenis);
-        if (fBulan) query = query.gte('tanggal', `${fBulan}-01`).lte('tanggal', `${fBulan}-31`);
+        
+        // Perbaikan filter bulan: Menggunakan pattern matching (Contoh: 2024-05%)
+        if (fBulan) query = query.ilike('tanggal', `${fBulan}%`);
 
         const { data, error } = await query;
         if (error) throw error;
@@ -57,20 +78,27 @@ async function loadItems() {
         let inQty = 0, outQty = 0;
         tbody.innerHTML = "";
 
+        // Jika data kosong
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted)">Data tidak ditemukan untuk periode ini.</td></tr>`;
+        }
+
         data.filter(i => i.nama.toLowerCase().includes(search)).forEach(item => {
             const isIn = item.jenis === 'Masuk';
             isIn ? inQty += item.jumlah : outQty += item.jumlah;
 
             const row = document.createElement('tr');
-            row.style.backgroundColor = isIn ? '#e8f5e9' : '#e1f5fe';
+            row.style.backgroundColor = isIn ? 'var(--row-in)' : 'var(--row-out)';
+            row.style.color = 'var(--text-main)';
+            
             row.innerHTML = `
                 <td><b>${item.nama}</b></td>
                 <td>${item.jumlah} ${item.satuan}</td>
-                <td><span class="badge ${item.jenis}">${item.jenis}</span></td>
+                <td><small>${item.jenis}</small></td>
                 <td>${item.tanggal}</td>
-                <td>
-                    <button onclick="editData(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="btn-edit">✏️</button>
-                    <button onclick="hapusData(${item.id})" class="btn-del">🗑️</button>
+                <td style="text-align:center">
+                    <button onclick='editData(${JSON.stringify(item)})' style="background:none; border:none; cursor:pointer;">✏️</button>
+                    <button onclick="hapusData(${item.id})" style="background:none; border:none; cursor:pointer; color:red; margin-left:10px;">🗑️</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -78,7 +106,7 @@ async function loadItems() {
 
         document.getElementById('sumMasuk').innerText = inQty;
         document.getElementById('sumKeluar').innerText = outQty;
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error load data:", e); }
 }
 
 async function simpanData() {
@@ -91,23 +119,26 @@ async function simpanData() {
         tanggal: document.getElementById('tanggal').value
     };
 
+    if(!payload.nama || isNaN(payload.jumlah)) return alert("Lengkapi data!");
+
     try {
         if (isEditing) {
-            await _supabase.from("items").update(payload).eq('id', id);
-            alert("Berhasil diperbarui");
+            const { error } = await _supabase.from("items").update(payload).eq('id', id);
+            if (error) throw error;
         } else {
-            await _supabase.from("items").insert([payload]);
+            const { error } = await _supabase.from("items").insert([payload]);
+            if (error) throw error;
         }
         resetForm();
         loadItems();
-    } catch (e) { alert(e.message); }
+    } catch (e) { alert("Error: " + e.message); }
 }
 
 function editData(item) {
     isEditing = true;
     document.getElementById('formTitle').innerText = "✏️ Edit Transaksi";
     document.getElementById('btnSimpan').innerText = "Update Data";
-    document.getElementById('btnBatal').style.display = "block";
+    document.getElementById('btnBatal').style.display = "inline";
     
     document.getElementById('editId').value = item.id;
     document.getElementById('namaBarang').value = item.nama;
@@ -115,7 +146,6 @@ function editData(item) {
     document.getElementById('satuan').value = item.satuan;
     document.getElementById('jenis').value = item.jenis;
     document.getElementById('tanggal').value = item.tanggal;
-    window.scrollTo(0, 0);
 }
 
 function resetForm() {
@@ -128,7 +158,7 @@ function resetForm() {
 }
 
 async function hapusData(id) {
-    if(confirm("Hapus data ini?")) {
+    if(confirm("Hapus data ini selamanya?")) {
         await _supabase.from("items").delete().eq('id', id);
         loadItems();
     }
@@ -137,6 +167,6 @@ async function hapusData(id) {
 async function exportExcel() {
     const { data } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Rekap");
-    XLSX.writeFile(wb, "AsproV2_Report.xlsx");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Laporan Stok");
+    XLSX.writeFile(wb, `Laporan_ASPRO_V2_${new Date().toLocaleDateString()}.xlsx`);
 }
