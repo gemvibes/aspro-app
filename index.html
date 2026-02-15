@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASPRO-V2 ATK Stock Profesional</title>
+    <title>ASPRO-V2 Audit Edition</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,26 +18,20 @@
                      alt="Logo ASPRO"
                      onerror="this.style.display='none'; this.parentElement.innerHTML='<i data-lucide=\'package\' style=\'width:40px;height:40px;color:#2563eb\'></i>'">
             </div>
-            
             <h2 style="margin: 0; color: var(--primary);">ASPRO-V2</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">ATK Stock Profesional</p>
-            
-            <input type="password" id="pinInput" placeholder="Masukkan PIN">
-            <button id="btnLogin" class="btn-primary">Masuk Aplikasi</button>
+            <input type="password" id="pinInput" placeholder="Masukkan PIN" autofocus>
+            <button id="btnLogin" class="btn-primary">Login</button>
         </div>
     </div>
 
     <div id="petugasOverlay" style="display:none;">
-        <div class="login-box" style="box-shadow: 0 20px 50px rgba(0,0,0,0.5); border:1px solid #334155;">
-            <div style="margin-bottom: 15px; color: var(--primary);">
-                <i data-lucide="user-circle-2" style="width: 48px; height: 48px;"></i>
-            </div>
-            <h3 style="color: var(--text-main);">Identitas Petugas</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-                Masukkan nama Anda untuk sesi kerja ini. <br>Nama akan tercatat otomatis di laporan.
-            </p>
-            <input type="text" id="inputNamaPetugas" placeholder="Contoh: Budi (Gudang)">
-            <button id="btnSetPetugas" class="btn-primary">Mulai Bekerja</button>
+        <div class="login-box">
+            <div style="margin-bottom: 15px; color: var(--primary);"><i data-lucide="user-circle-2" style="width: 48px; height: 48px;"></i></div>
+            <h3>Identitas Petugas</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Siapa yang bertugas di PC ini sekarang?</p>
+            <input type="text" id="inputNamaPetugas" placeholder="Ketik nama Anda...">
+            <button id="btnSetPetugas" class="btn-primary">Masuk Ke Sistem</button>
         </div>
     </div>
 
@@ -48,10 +42,10 @@
                     <i data-lucide="layers" style="width: 20px;"></i> ASPRO-V2
                 </span>
                 <div style="display: flex; align-items: center;">
-                    <span id="displayPetugas" style="font-size: 13px; margin-right: 20px; font-weight: 600; color: var(--primary); background: var(--row-out); padding: 5px 10px; border-radius: 20px;"></span>
+                    <span id="displayPetugas" style="font-size: 13px; margin-right: 20px; font-weight: 600; color: var(--primary);"></span>
                     <button id="btnTheme" class="btn-outline">🌙 Mode</button>
-                    <button id="btnExport" style="background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-right: 8px; font-weight: 600;">Excel</button>
-                    <button id="btnLogout" class="btn-outline" style="background: var(--danger); color: white; border: none;">Logout</button>
+                    <button id="btnExport" style="background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-right: 8px;">Excel</button>
+                    <button id="btnLogout" class="btn-outline" style="background: var(--danger); color: white;">Logout</button>
                 </div>
             </div>
         </header>
@@ -59,70 +53,47 @@
         <div class="split-container">
             <aside class="side-panel">
                 <div class="panel-card">
-                    <h3 id="formTitle" style="margin-top: 0; display:flex; align-items:center; gap:8px;">
-                        <i data-lucide="file-plus-2" style="width:18px;"></i> Transaksi
-                    </h3>
+                    <h3 id="formTitle" style="margin-top: 0;"><i data-lucide="file-plus-2" style="width:18px;"></i> Transaksi</h3>
                     <form id="stokForm">
                         <input type="hidden" id="editId">
-                        
                         <label><small>Nama Barang</small></label>
-                        <input type="text" id="namaBarang" list="listBarang" placeholder="Ketik untuk cari..." autocomplete="off" required>
-                        <datalist id="listBarang"></datalist> <div style="display: flex; gap: 12px;">
+                        <input type="text" id="namaBarang" list="listBarang" placeholder="Cari/Ketik..." autocomplete="off" required>
+                        <datalist id="listBarang"></datalist>
+                        <div style="display: flex; gap: 12px;">
                             <div style="flex:1"><label><small>Jumlah</small></label><input type="number" id="jumlah" required></div>
-                            <div style="flex:1"><label><small>Satuan</small></label><input type="text" id="satuan" placeholder="Pcs/Rim" required></div>
+                            <div style="flex:1"><label><small>Satuan</small></label><input type="text" id="satuan" placeholder="Pcs" required></div>
                         </div>
-                        
-                        <label><small>Jenis Transaksi</small></label>
+                        <label><small>Jenis</small></label>
                         <select id="jenis">
                             <option value="Masuk">🟢 Barang Masuk</option>
                             <option value="Keluar">🔵 Barang Keluar</option>
                         </select>
-                        
                         <label><small>Tanggal</small></label>
                         <input type="date" id="tanggal" required>
-                        
                         <button type="button" id="btnSimpan" class="btn-primary">💾 Simpan Data</button>
-                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:var(--text-muted); cursor:pointer; margin-top:10px;">Batal Edit</button>
+                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:var(--text-muted); cursor:pointer; margin-top:10px;">Batal</button>
                     </form>
                 </div>
-
                 <div class="summary-box">
-                    <div class="stat-item" style="background:var(--row-in); color:var(--success);">
-                        <small>Total Masuk</small><h2 id="sumMasuk">0</h2>
-                    </div>
-                    <div class="stat-item" style="background:var(--row-out); color:var(--primary);">
-                        <small>Total Keluar</small><h2 id="sumKeluar">0</h2>
-                    </div>
+                    <div class="stat-item" style="background:var(--row-in);"><small>Masuk</small><h2 id="sumMasuk">0</h2></div>
+                    <div class="stat-item" style="background:var(--row-out);"><small>Keluar</small><h2 id="sumKeluar">0</h2></div>
                 </div>
             </aside>
 
             <main class="main-panel">
-                <div class="filter-bar">
-                    <input type="text" id="cariBarang" placeholder="Cari data barang..." style="margin:0; flex-grow:1;">
-                    <select id="filterJenis" style="margin:0; width:160px;">
-                        <option value="Semua">Semua Jenis</option>
-                        <option value="Masuk">Masuk</option>
-                        <option value="Keluar">Keluar</option>
-                    </select>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="cariBarang" placeholder="Cari data..." style="margin:0;">
+                    <select id="filterJenis" style="margin:0; width:150px;"><option value="Semua">Semua</option><option value="Masuk">Masuk</option><option value="Keluar">Keluar</option></select>
                 </div>
-                <div class="table-card">
+                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Barang</th>
-                                <th>Stok</th>
-                                <th>Jenis</th>
-                                <th>Tanggal</th>
-                                <th>Petugas</th> <th style="text-align:center">Aksi</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Barang</th><th>Jumlah</th><th>Jenis</th><th>Tanggal</th><th>Petugas</th><th style="text-align:center">Aksi</th></tr></thead>
                         <tbody id="tabelBody"></tbody>
                     </table>
                 </div>
             </main>
         </div>
     </div>
-
     <script src="app.js"></script>
     <script>lucide.createIcons();</script>
 </body>
