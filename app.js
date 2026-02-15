@@ -1,114 +1,139 @@
-// 1. INISIALISASI SUPABASE (Data Sesuai Screenshot Anda)
-const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co"; //
-const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI"; //
+const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
+const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI"; 
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// 2. LOGIKA LOGIN & ELEMENT SELECTOR
 document.addEventListener('DOMContentLoaded', () => {
-    const loginPage = document.getElementById('loginPage');
-    const appPage = document.getElementById('appPage');
-    const btnLogin = document.getElementById('btnLogin');
-    const btnLogout = document.getElementById('btnLogout');
-    const btnSimpan = document.getElementById('btnSimpan');
+    // Session Checker
+    if (localStorage.getItem("aspro_session") === "active") { showApp(); }
 
-    // Cek Session saat aplikasi dibuka
-    if (localStorage.getItem("aspro_auth") === "true") {
-        showApp();
-    }
-
-    // Fungsi Masuk
-    btnLogin.onclick = () => {
-        const pin = document.getElementById('pinInput').value;
-        if (pin === "1234") {
-            localStorage.setItem("aspro_auth", "true");
-            showApp();
-        } else {
-            alert("PIN Salah! Gunakan 1234");
-        }
-    };
-
-    // Fungsi Keluar
-    btnLogout.onclick = () => {
-        localStorage.removeItem("aspro_auth");
-        location.reload();
-    };
-
-    // Fungsi Simpan
-    btnSimpan.onclick = simpanData;
-
-    function showApp() {
-        loginPage.style.display = 'none';
-        appPage.style.display = 'block';
-        document.getElementById('tanggal').valueAsDate = new Date();
-        loadItems();
-    }
+    // Event Listeners
+    document.getElementById('btnLogin').onclick = handleLogin;
+    document.getElementById('btnLogout').onclick = handleLogout;
+    document.getElementById('btnSimpan').onclick = simpanData;
+    document.getElementById('cariBarang').onkeyup = filterTable;
+    document.getElementById('btnExport').onclick = exportPro;
 });
 
-// 3. FUNGSI LOAD DATA
-async function loadItems() {
-    const tbody = document.getElementById("tabelBody");
-    try {
-        const { data, error } = await _supabase
-            .from("items") // Pastikan nama tabel di Supabase Anda 'items'
-            .select("*")
-            .order("id", { ascending: false });
+function handleLogin() {
+    if (document.getElementById('pinInput').value === "1234") {
+        localStorage.setItem("aspro_session", "active");
+        showApp();
+    } else { alert("PIN Tidak Terdaftar!"); }
+}
 
-        if (error) throw error;
-
-        tbody.innerHTML = "";
-        if (data.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='4'>Belum ada data.</td></tr>";
-            return;
-        }
-
-        data.forEach(item => {
-            const warna = item.jenis === 'Masuk' ? 'green' : 'red';
-            tbody.innerHTML += `
-                <tr>
-                    <td style="text-align:left;">${item.nama}</td>
-                    <td>${item.jumlah} ${item.satuan}</td>
-                    <td style="color:${warna}; font-weight:bold;">${item.jenis}</td>
-                    <td>${item.tanggal}</td>
-                </tr>`;
-        });
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan='4' style='color:red;'>Error: ${err.message}</td></tr>`;
+function handleLogout() {
+    if(confirm("Keluar dari aplikasi?")) {
+        localStorage.removeItem("aspro_session");
+        location.reload();
     }
 }
 
-// 4. FUNGSI SIMPAN DATA
+function showApp() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appPage').style.display = 'block';
+    document.getElementById('tanggal').valueAsDate = new Date();
+    loadItems();
+}
+
+async function loadItems() {
+    const tbody = document.getElementById("tabelBody");
+    try {
+        const { data, error } = await _supabase.from("items").select("*").order("id", { ascending: false });
+        if (error) throw error;
+
+        let inTotal = 0, outTotal = 0;
+        tbody.innerHTML = "";
+
+        data.forEach(item => {
+            const isMasuk = item.jenis === 'Masuk';
+            isMasuk ? inTotal += Number(item.jumlah) : outTotal += Number(item.jumlah);
+
+            // User Request: Hijau untuk Masuk, Biru Langit untuk Keluar
+            const rowColor = isMasuk ? '#e8f5e9' : '#e1f5fe'; 
+            
+            tbody.innerHTML += `
+                <tr style="background-color: ${rowColor};">
+                    <td>
+                        <strong>${item.nama}</strong><br>
+                        <small style="color:#555">${item.jenis}</small>
+                    </td>
+                    <td>${item.jumlah} <small>${item.satuan}</small></td>
+                    <td><small>${item.tanggal}</small></td>
+                    <td>
+                        <button onclick="hapusData(${item.id})" class="btn-icon">🗑️</button>
+                    </td>
+                </tr>`;
+        });
+
+        document.getElementById('summaryMasuk').innerText = inTotal;
+        document.getElementById('summaryKeluar').innerText = outTotal;
+    } catch (err) { console.error(err); }
+}
+
 async function simpanData() {
     const btn = document.getElementById('btnSimpan');
-    const payload = {
-        nama: document.getElementById("namaBarang").value,
+    const data = {
+        nama: document.getElementById("namaBarang").value.trim(),
         jumlah: parseInt(document.getElementById("jumlah").value),
-        satuan: document.getElementById("satuan").value,
+        satuan: document.getElementById("satuan").value.trim(),
         jenis: document.getElementById("jenis").value,
         tanggal: document.getElementById("tanggal").value
     };
 
-    if (!payload.nama || !payload.jumlah || !payload.tanggal) {
-        alert("Lengkapi data!");
-        return;
-    }
+    if (!data.nama || isNaN(data.jumlah)) return alert("Mohon lengkapi data!");
 
     btn.disabled = true;
-    btn.innerText = "⏳ Menyimpan...";
+    btn.innerText = "MEMPROSES...";
 
     try {
-        const { error } = await _supabase.from("items").insert([payload]);
+        const { error } = await _supabase.from("items").insert([data]);
         if (error) throw error;
-
-        alert("✅ Berhasil Disimpan!");
         document.getElementById("stokForm").reset();
         document.getElementById('tanggal').valueAsDate = new Date();
         loadItems();
-    } catch (err) {
-        alert("❌ Gagal Simpan: " + err.message);
-        console.error(err);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "💾 SIMPAN DATA";
+    } catch (err) { alert(err.message); }
+    finally { btn.disabled = false; btn.innerText = "💾 SIMPAN TRANSAKSI"; }
+}
+
+async function hapusData(id) {
+    if (confirm("Hapus data transaksi ini secara permanen?")) {
+        await _supabase.from("items").delete().eq('id', id);
+        loadItems();
     }
+}
+
+function filterTable() {
+    const query = document.getElementById('cariBarang').value.toUpperCase();
+    const rows = document.querySelectorAll("#tabelBody tr");
+    rows.forEach(row => {
+        row.style.display = row.innerText.toUpperCase().includes(query) ? "" : "none";
+    });
+}
+
+async function exportPro() {
+    try {
+        const { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
+        if (error) throw error;
+
+        // Sheet 1: Riwayat Transaksi
+        const riwayat = data.map(i => ({
+            "Tanggal": i.tanggal,
+            "Nama ATK": i.nama,
+            "Jenis": i.jenis,
+            "Qty": i.jumlah,
+            "Satuan": i.satuan
+        }));
+
+        // Sheet 2: Sisa Stok (Agregasi)
+        const sisa = {};
+        data.forEach(i => {
+            if (!sisa[i.nama]) sisa[i.nama] = { "Nama ATK": i.nama, "Total Stok": 0, "Satuan": i.satuan };
+            i.jenis === "Masuk" ? sisa[i.nama]["Total Stok"] += i.jumlah : sisa[i.nama]["Total Stok"] -= i.jumlah;
+        });
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayat), "Rekap Transaksi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(Object.values(sisa)), "Sisa Stok");
+        XLSX.writeFile(wb, `Laporan_ASPRO_V2_${new Date().getMonth()+1}.xlsx`);
+    } catch (e) { alert("Export Gagal: " + e.message); }
 }
