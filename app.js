@@ -1,68 +1,85 @@
-// ===== KONEKSI SUPABASE =====
-const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co";
-const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI"; 
+// 1. INISIALISASI SUPABASE (Data Sesuai Screenshot Anda)
+const supabaseUrl = "https://jlsltubltnowfnmuefgg.supabase.co"; //
+const supabaseKey = "sb_publishable_yun5vfOi8OwyyxRi1GpfIQ_-ZioIciI"; //
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== LOGIN LOGIC =====
-const PIN_BENAR = "1234";
+// 2. LOGIKA LOGIN & ELEMENT SELECTOR
+document.addEventListener('DOMContentLoaded', () => {
+    const loginPage = document.getElementById('loginPage');
+    const appPage = document.getElementById('appPage');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    const btnSimpan = document.getElementById('btnSimpan');
 
-function doLogin() {
-    const pin = document.getElementById("pinInput").value;
-    if (pin === PIN_BENAR) {
-        localStorage.setItem("aspro_login", "true");
-        tampilkanHalaman();
-        loadItems();
-    } else {
-        alert("PIN Salah!");
+    // Cek Session saat aplikasi dibuka
+    if (localStorage.getItem("aspro_auth") === "true") {
+        showApp();
     }
-}
 
-function handleLogout() {
-    localStorage.removeItem("aspro_login");
-    location.reload();
-}
+    // Fungsi Masuk
+    btnLogin.onclick = () => {
+        const pin = document.getElementById('pinInput').value;
+        if (pin === "1234") {
+            localStorage.setItem("aspro_auth", "true");
+            showApp();
+        } else {
+            alert("PIN Salah! Gunakan 1234");
+        }
+    };
 
-function tampilkanHalaman() {
-    const isLogin = localStorage.getItem("aspro_login");
-    if (isLogin === "true") {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("appPage").style.display = "block";
+    // Fungsi Keluar
+    btnLogout.onclick = () => {
+        localStorage.removeItem("aspro_auth");
+        location.reload();
+    };
+
+    // Fungsi Simpan
+    btnSimpan.onclick = simpanData;
+
+    function showApp() {
+        loginPage.style.display = 'none';
+        appPage.style.display = 'block';
         document.getElementById('tanggal').valueAsDate = new Date();
+        loadItems();
     }
-}
+});
 
-// ===== AMBIL DATA =====
+// 3. FUNGSI LOAD DATA
 async function loadItems() {
-    const { data, error } = await _supabase
-        .from("items")
-        .select("*")
-        .order("id", { ascending: false });
-
-    if (error) {
-        console.error(error);
-        return;
-    }
-
     const tbody = document.getElementById("tabelBody");
-    tbody.innerHTML = "";
-    data.forEach((item, i) => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${item.nama}</td>
-                <td>${item.jumlah}</td>
-                <td>${item.satuan}</td>
-                <td>${item.jenis}</td>
-                <td>${item.tanggal}</td>
-            </tr>`;
-    });
+    try {
+        const { data, error } = await _supabase
+            .from("items") // Pastikan nama tabel di Supabase Anda 'items'
+            .select("*")
+            .order("id", { ascending: false });
+
+        if (error) throw error;
+
+        tbody.innerHTML = "";
+        if (data.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='4'>Belum ada data.</td></tr>";
+            return;
+        }
+
+        data.forEach(item => {
+            const warna = item.jenis === 'Masuk' ? 'green' : 'red';
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:left;">${item.nama}</td>
+                    <td>${item.jumlah} ${item.satuan}</td>
+                    <td style="color:${warna}; font-weight:bold;">${item.jenis}</td>
+                    <td>${item.tanggal}</td>
+                </tr>`;
+        });
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan='4' style='color:red;'>Error: ${err.message}</td></tr>`;
+    }
 }
 
-// ===== SIMPAN DATA =====
+// 4. FUNGSI SIMPAN DATA
 async function simpanData() {
-    const btn = document.querySelector("button[onclick='simpanData()']");
-    
-    // Ambil data dari input
+    const btn = document.getElementById('btnSimpan');
     const payload = {
         nama: document.getElementById("namaBarang").value,
         jumlah: parseInt(document.getElementById("jumlah").value),
@@ -71,32 +88,27 @@ async function simpanData() {
         tanggal: document.getElementById("tanggal").value
     };
 
-    // Validasi
     if (!payload.nama || !payload.jumlah || !payload.tanggal) {
-        alert("Mohon isi semua data!");
+        alert("Lengkapi data!");
         return;
     }
 
     btn.disabled = true;
-    btn.innerText = "Proses Simpan...";
+    btn.innerText = "⏳ Menyimpan...";
 
-    // Eksekusi ke Supabase
-    const { error } = await _supabase.from("items").insert([payload]);
+    try {
+        const { error } = await _supabase.from("items").insert([payload]);
+        if (error) throw error;
 
-    if (error) {
-        // ERROR DETECTOR: Akan muncul pesan jika kolom salah
-        alert("GAGAL SIMPAN: " + error.message);
-        console.error(error);
-    } else {
-        alert("Data Berhasil Tersimpan!");
+        alert("✅ Berhasil Disimpan!");
         document.getElementById("stokForm").reset();
         document.getElementById('tanggal').valueAsDate = new Date();
         loadItems();
+    } catch (err) {
+        alert("❌ Gagal Simpan: " + err.message);
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "💾 SIMPAN DATA";
     }
-    
-    btn.disabled = false;
-    btn.innerText = "Simpan";
 }
-
-// Cek status login saat web dibuka
-window.onload = tampilkanHalaman;
