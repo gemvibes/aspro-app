@@ -1,87 +1,80 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASPRO - ATK STOCK PROFESIONAL</title>
-
-<link rel="stylesheet" href="style.css">
-
-<!-- SUPABASE WAJIB ADA -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASPRO - ATK STOCK PROFESIONAL</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginPage" class="login-container">
+    <div style="font-size: 40px; margin-bottom: 10px;">📦</div>
     <h2>Login ASPRO</h2>
-    <input type="password" id="pinInput" placeholder="Masukkan PIN">
-    <button onclick="doLogin()">Login</button>
+    <p>Masukkan PIN Keamanan</p>
+    <input type="password" id="pinInput" placeholder="PIN" inputmode="numeric">
+    <button onclick="handleLogin()">Masuk</button>
 </div>
 
-<!-- APLIKASI -->
 <div id="appPage" style="display:none;">
+    <header>
+        <strong>ASPRO</strong> - ATK STOCK
+        <button class="logout" onclick="handleLogout()">Keluar</button>
+    </header>
 
-<header>
-    ASPRO (ATK STOCK PROFESIONAL)
-</header>
+    <section>
+        <h3>Input Stok Baru</h3>
+        <form id="stokForm" onsubmit="event.preventDefault();">
+            <label>Nama Barang</label>
+            <input type="text" id="namaBarang" placeholder="Contoh: Kertas A4" required>
 
-<!-- FORM TETAP FORM (UI ASLI), TAPI ANTI RELOAD -->
-<form id="stokForm" onsubmit="return false;">
-    <label>Nama Barang</label>
-    <input type="text" id="namaBarang" required>
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 2;">
+                    <label>Jumlah</label>
+                    <input type="number" id="jumlah" placeholder="0" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Satuan</label>
+                    <input type="text" id="satuan" placeholder="Rim/Pcs" required>
+                </div>
+            </div>
 
-    <label>Jumlah</label>
-    <input type="number" id="jumlah" required>
+            <label>Jenis Transaksi</label>
+            <select id="jenis" required>
+                <option value="Masuk">Barang Masuk (+)</option>
+                <option value="Keluar">Barang Keluar (-)</option>
+            </select>
 
-    <label>Satuan</label>
-    <input type="text" id="satuan" required>
+            <label>Tanggal</label>
+            <input type="date" id="tanggal" required>
 
-    <label>Jenis</label>
-    <select id="jenis" required>
-        <option value="">-- Pilih --</option>
-        <option value="Masuk">Masuk</option>
-        <option value="Keluar">Keluar</option>
-    </select>
+            <button type="button" id="btnSimpan" onclick="simpanData()" style="margin-top: 15px; background: #28a745;">
+                💾 Simpan ke Database
+            </button>
+        </form>
+    </section>
 
-    <label>Tanggal</label>
-    <input type="date" id="tanggal" required>
-
-    <button type="button" onclick="simpanData()">Simpan</button>
-</form>
-
-<hr>
-
-<table border="1" width="100%">
-<thead>
-<tr>
-    <th>No</th>
-    <th>Nama</th>
-    <th>Jumlah</th>
-    <th>Satuan</th>
-    <th>Jenis</th>
-    <th>Tanggal</th>
-</tr>
-</thead>
-<tbody id="tabelBody"></tbody>
-</table>
-
+    <section>
+        <h3>Riwayat Transaksi</h3>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Qty</th>
+                        <th>Tipe</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelBody">
+                    <tr><td colspan="5">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
-
-<!-- LOGIN SCRIPT -->
-<script>
-function doLogin(){
-    const pin = document.getElementById("pinInput").value;
-    if(pin === "1234"){
-        alert("Login berhasil");
-        loginPage.style.display = "none";
-        appPage.style.display = "block";
-        loadItems();
-    } else {
-        alert("PIN salah");
-    }
-}
-</script>
 
 <script src="app.js"></script>
 </body>
