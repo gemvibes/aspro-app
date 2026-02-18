@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASPRO-V2 Professional Audit</title>
+    <title>ASPRO-V2 Professional</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,18 +11,38 @@
 </head>
 <body data-theme="light">
 
-    <div id="loginPage" class="login-wrapper">...</div>
+    <div id="loginPage" class="login-wrapper">
+        <div class="login-box">
+            <div class="logo-circle">
+                <img src="https://raw.githubusercontent.com/gemvibes/aspro-app/refs/heads/main/logo%20aspro.png" alt="Logo">
+            </div>
+            <h2 style="margin:0; color:var(--primary);">ASPRO-V2</h2>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Audit & Stock Control</p>
+            <input type="password" id="pinInput" placeholder="Masukkan PIN">
+            <button id="btnLogin" class="btn-primary">LOGIN</button>
+        </div>
+    </div>
+
+    <div id="petugasOverlay" style="display:none;">
+        <div class="login-box">
+            <div style="color:var(--accent); margin-bottom:15px;"><i data-lucide="user-check" style="width:48px;height:48px;"></i></div>
+            <h3>Identitas Petugas</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Siapa yang bertugas saat ini?</p>
+            <input type="text" id="inputNamaPetugas" placeholder="Nama Anda">
+            <button id="btnSetPetugas" class="btn-primary">MASUK SISTEM</button>
+        </div>
+    </div>
 
     <div id="appPage" style="display:none;">
         <header>
-            <div class="header-content" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="header-content">
                 <span style="font-weight:900; color:var(--primary); font-size:22px; display:flex; align-items:center; gap:10px;">
-                    <i data-lucide="layers"></i> ASPRO-V2
+                    <i data-lucide="package"></i> ASPRO-V2
                 </span>
                 <div style="display:flex; gap:12px;">
-                    <button id="btnTheme" class="btn-outline">🌓 Ganti Mode</button>
-                    <button id="btnExport" style="background:var(--accent); color:#020617; border:none; padding:8px 16px; border-radius:10px; cursor:pointer; font-weight:bold;">Export Excel</button>
-                    <button id="btnLogout" class="btn-outline">Logout</button>
+                    <button id="btnTheme" class="btn-outline">🌓 MODE</button>
+                    <button id="btnExport" style="background:var(--accent); color:#020617; border:none; padding:8px 16px; border-radius:10px; cursor:pointer; font-weight:bold;">EXCEL</button>
+                    <button id="btnLogout" class="btn-outline" style="color:red; border-color:red;">LOGOUT</button>
                 </div>
             </div>
         </header>
@@ -30,7 +50,7 @@
         <div class="split-container">
             <aside class="side-panel">
                 <div class="panel-card">
-                    <h3 id="formTitle" style="margin-top:0;">Input Transaksi</h3>
+                    <h3 id="formTitle">INPUT TRANSAKSI</h3>
                     <form id="stokForm">
                         <input type="hidden" id="editId">
                         <label><small>NAMA BARANG</small></label>
@@ -52,7 +72,7 @@
                         <input type="date" id="tanggal">
 
                         <button type="button" id="btnSimpan" class="btn-primary">SIMPAN DATA</button>
-                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:#ffffff; cursor:pointer; margin-top:10px; text-decoration:underline;">Batal Edit</button>
+                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:white; cursor:pointer; margin-top:10px; text-decoration:underline;">Batal Edit</button>
                     </form>
                 </div>
 
@@ -68,8 +88,8 @@
 
             <main class="main-panel">
                 <div style="display:flex; gap:12px; margin-bottom:25px;">
-                    <input type="text" id="cariBarang" placeholder="Cari data stok..." style="flex-grow:1;">
-                    <select id="filterJenis" style="width:160px;">
+                    <input type="text" id="cariBarang" placeholder="Cari data stok..." style="flex-grow:1; margin-bottom:0;">
+                    <select id="filterJenis" style="width:160px; margin-bottom:0;">
                         <option value="Semua">Semua Jenis</option>
                         <option value="Masuk">Masuk</option>
                         <option value="Keluar">Keluar</option>
@@ -80,9 +100,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Barang</th>
-                                <th>Stok</th>
-                                <th>Jenis</th>
+                                <th>Nama Barang</th>
+                                <th>Jumlah</th>
+                                <th>Status</th>
                                 <th>Tanggal</th>
                                 <th>Petugas</th>
                                 <th style="text-align:center">Aksi</th>
