@@ -29,6 +29,7 @@ header {
     border-bottom: 5px solid var(--accent); 
     padding: 15px 24px; 
     color: white;
+    position: sticky; top: 0; z-index: 100;
 }
 .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: auto; }
 
@@ -69,49 +70,68 @@ input, select {
     border-radius: 12px; cursor: pointer; font-weight: 900;
 }
 
-/* MINI TABLE STYLE */
+/* MINI TABLE SIDEBAR */
 .mini-table-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    padding: 8px 5px;
-    border-bottom: 2px solid rgba(255,255,255,0.3);
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    padding: 8px 5px; border-bottom: 2px solid rgba(255,255,255,0.3);
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
 }
 .stock-scroll-area { max-height: 250px; overflow-y: auto; }
 .stock-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    padding: 10px 5px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-size: 12px;
-    align-items: center;
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px; align-items: center;
 }
-.qty-badge {
-    background: rgba(255,255,255,0.2);
-    padding: 3px 6px;
-    border-radius: 5px;
-    font-weight: bold;
-    text-align: center;
+.qty-badge { background: rgba(255,255,255,0.2); padding: 3px 6px; border-radius: 5px; font-weight: bold; text-align: center; }
+
+/* MAIN TABLE KANAN (SCROLL & ZEBRA) */
+.main-panel { flex-grow: 1; padding: 40px; overflow: hidden; }
+
+/* Kontainer untuk limit 15 baris (estimasi tinggi 55px per baris x 15 + header) */
+.table-scroll-container {
+    max-height: 720px; 
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+}
+[data-theme="dark"] .table-scroll-container { background: #1e293b; }
+
+table { width: 100%; border-collapse: collapse; position: relative; }
+
+/* Sticky Header */
+thead th { 
+    background: var(--primary); 
+    color: white; 
+    padding: 15px; 
+    text-align: left; 
+    font-size: 11px; 
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-/* MAINTENANCE BUTTONS */
-.btn-tool {
-    background: rgba(255,255,255,0.1);
-    color: white;
-    border: 1px dashed rgba(255,255,255,0.4);
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 11px;
-    flex: 1;
-}
-
-.main-panel { flex-grow: 1; padding: 40px; }
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-[data-theme="dark"] table { background: #1e293b; }
-th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 11px; text-transform: uppercase; }
 td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
+
+/* Zebra Stripe - Warna Selang Seling */
+tbody tr:nth-child(even) {
+    background-color: rgba(14, 165, 233, 0.05); /* Biru sangat muda */
+}
+[data-theme="dark"] tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.03); /* Putih transparan */
+}
+
+/* Scrollbar Style */
+.table-scroll-container::-webkit-scrollbar { width: 8px; }
+.table-scroll-container::-webkit-scrollbar-track { background: transparent; }
+.table-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* MAINTENANCE TOOLS */
+.btn-tool {
+    background: rgba(255,255,255,0.1); color: white;
+    border: 1px dashed rgba(255,255,255,0.4); padding: 10px;
+    border-radius: 8px; cursor: pointer; font-size: 11px; flex: 1;
+}
 
 @media (max-width: 1000px) { .split-container { flex-direction: column; } .side-panel { width: 100%; } }
