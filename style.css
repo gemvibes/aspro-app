@@ -60,6 +60,7 @@ input, select {
     width: 100%; 
     box-sizing: border-box; 
     background: #ffffff; 
+    color: #000;
 }
 
 .btn-primary { 
@@ -108,9 +109,9 @@ input, select {
 }
 
 .main-panel { flex-grow: 1; padding: 40px; }
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 [data-theme="dark"] table { background: #1e293b; }
-th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 11px; }
-td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
+th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 11px; text-transform: uppercase; }
+td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
 
 @media (max-width: 1000px) { .split-container { flex-direction: column; } .side-panel { width: 100%; } }
