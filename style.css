@@ -1,19 +1,19 @@
 :root {
-    /* LIGHT MODE: Fresh & Professional */
+    /* LIGHT MODE */
     --bg-body: #ffffff; 
     --bg-side: #f1f5f9; 
-    --header-bg: #0ea5e9; /* Biru Langit Solid */
-    --menu-card: #0ea5e9; /* Kotak Menu Biru */
+    --header-bg: #0ea5e9; 
+    --menu-card: #0ea5e9; 
     --text-main: #0f172a; 
     --text-on-blue: #ffffff; 
     --border: #cbd5e1;
     --primary: #0ea5e9; 
-    --accent: #14b8a6; /* Hijau Tosca Pemisah */
+    --accent: #14b8a6; 
 }
 
 [data-theme="dark"] {
-    /* DARK MODE: Deep Slate (Tidak Terlalu Gelap) */
-    --bg-body: #1e293b; /* Deep Slate Grey */
+    /* DARK MODE */
+    --bg-body: #1e293b; 
     --bg-side: #0f172a; 
     --header-bg: #0f172a; 
     --menu-card: #3b82f6; 
@@ -29,7 +29,7 @@ body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: var(-
 /* HEADER */
 header { 
     background: var(--header-bg); 
-    border-bottom: 5px solid var(--accent); /* Pemisah Tosca Atas */
+    border-bottom: 5px solid var(--accent); 
     padding: 15px 24px; 
     color: white;
 }
@@ -42,12 +42,12 @@ header {
     width: 360px; 
     background: var(--bg-side); 
     padding: 25px; 
-    border-right: 6px solid var(--accent); /* Pemisah Tosca Samping */
+    border-right: 6px solid var(--accent); 
     flex-shrink: 0; 
 }
 
 /* KOTAK MENU BIRU */
-.panel-card, .stat-item { 
+.panel-card { 
     background: var(--menu-card) !important; 
     color: var(--text-on-blue) !important; 
     padding: 20px; 
@@ -71,17 +71,11 @@ input, select {
     font-weight: 500;
 }
 
+/* BUTTONS */
 .btn-primary { 
     background: var(--accent); 
-    color: #000; 
-    border: none; 
-    padding: 15px; 
-    width: 100%; 
-    border-radius: 12px; 
-    cursor: pointer; 
-    font-weight: 900; 
-    font-size: 14px;
-    letter-spacing: 1px;
+    color: #000; border: none; padding: 15px; width: 100%; 
+    border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 1px;
 }
 .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
@@ -94,12 +88,12 @@ table { width: 100%; border-collapse: collapse; min-width: 700px; }
 th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 td { padding: 15px; border-bottom: 1px solid var(--border); color: var(--text-main); font-size: 14px; }
 
-/* STATS */
-.summary-box { display: flex; gap: 12px; }
-.stat-item { flex: 1; text-align: center; }
-.stat-item h2 { margin: 5px 0 0 0; font-size: 28px; }
-
-@media (max-width: 1000px) {
-    .split-container { flex-direction: column; }
-    .side-panel { width: 100%; border-right: none; border-bottom: 6px solid var(--accent); }
+/* LIST STOK BARU (SCROLLABLE) */
+.stock-list-container {
+    max-height: 250px; /* Tinggi maksimal sebelum scroll */
+    overflow-y: auto;
+    padding-right: 5px;
 }
+/* Scrollbar Custom agar terlihat elegan di dalam kotak biru */
+.stock-list-container::-webkit-scrollbar { width: 6px; }
+.stock-list-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
