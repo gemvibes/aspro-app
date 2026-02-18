@@ -64,20 +64,13 @@ async function loadItems() {
     }
 }
 
-// FUNGSI BARU: FORMAT TANGGAL dd-mm-yyyy
+// FORMAT TANGGAL dd-mm-yyyy (Bebas dari T00:00:00)
 function formatTanggal(tglStr) {
     if (!tglStr) return "-";
-    // Memisahkan string jika ada format T (ISO)
     const tglHanya = tglStr.split('T')[0]; 
-    const bagian = tglHanya.split('-'); // [yyyy, mm, dd]
-    
+    const bagian = tglHanya.split('-'); 
     if (bagian.length !== 3) return tglStr;
-    
-    const yyyy = bagian[0];
-    const mm = bagian[1];
-    const dd = bagian[2];
-    
-    return `${dd}-${mm}-${yyyy}`; // Menghasilkan dd-mm-yyyy
+    return `${bagian[2]}-${bagian[1]}-${bagian[0]}`; 
 }
 
 function renderTable() {
@@ -132,29 +125,26 @@ async function simpanData() {
         tanggal: document.getElementById('tanggal').value,
         petugas: currentPetugas
     };
-    
     if (!payload.nama || isNaN(payload.jumlah)) return alert("Lengkapi data!");
-
     if (isEditing) await _supabase.from("items").update(payload).eq('id', document.getElementById('editId').value);
     else await _supabase.from("items").insert([payload]);
-    
     resetForm(); loadItems();
 }
 
 async function restoreFromJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
             const data = JSON.parse(e.target.result);
-            if (confirm(`Impor ${data.length} data riwayat ke database?`)) {
-                const { error } = await _supabase.from("items").insert(data);
+            if (confirm(`Impor ${data.length} data ke database?`)) {
+                const cleanData = data.map(i => ({...i, petugas: i.petugas || "Imported"}));
+                const { error } = await _supabase.from("items").insert(cleanData);
                 if (error) throw error;
                 alert("Restore Berhasil!"); loadItems();
             }
-        } catch (err) { alert("Format file JSON tidak sesuai!"); }
+        } catch (err) { alert("File tidak sesuai!"); }
     };
     reader.readAsText(file);
 }
@@ -191,15 +181,12 @@ function resetForm() {
 }
 
 async function hapusData(id) { 
-    if(confirm("Hapus data riwayat ini?")) { 
-        await _supabase.from("items").delete().eq('id', id); 
-        loadItems(); 
-    } 
+    if(confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } 
 }
 
 async function exportExcel() {
     const ws = XLSX.utils.json_to_sheet(globalData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Audit_Stok");
+    XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
     XLSX.writeFile(wb, "Laporan_Aspro_V2.xlsx");
 }
