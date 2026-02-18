@@ -64,7 +64,6 @@ async function loadItems() {
     }
 }
 
-// FORMAT TANGGAL dd-mm-yyyy (Bebas dari T00:00:00)
 function formatTanggal(tglStr) {
     if (!tglStr) return "-";
     const tglHanya = tglStr.split('T')[0]; 
@@ -184,9 +183,20 @@ async function hapusData(id) {
     if(confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } 
 }
 
+// PERBAIKAN: Fungsi Export yang memformat tanggal dd-mm-yyyy
 async function exportExcel() {
-    const ws = XLSX.utils.json_to_sheet(globalData);
+    // 1. Buat data baru khusus untuk ekspor agar data asli tidak berubah
+    const dataUntukExcel = globalData.map(item => ({
+        "Nama Barang": item.nama,
+        "Jumlah": item.jumlah,
+        "Satuan": item.satuan,
+        "Status": item.jenis,
+        "Tanggal": formatTanggal(item.tanggal), // Memanggil fungsi format di sini
+        "Petugas": item.petugas || "-"
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataUntukExcel);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
-    XLSX.writeFile(wb, "Laporan_Aspro_V2.xlsx");
+    XLSX.writeFile(wb, `Laporan_Aspro_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
