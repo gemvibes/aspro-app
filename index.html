@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASPRO-V2 Professional</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body data-theme="light">
 
     <div id="loginPage" style="display: flex; height: 100vh; align-items: center; justify-content: center; background: #0ea5e9;">
-        <div style="text-align: center; width: 320px; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 20px 25px rgba(0,0,0,0.2);">
-            <h2 style="color:#0ea5e9; margin-bottom:20px;">ASPRO-V2</h2>
+        <div style="text-align: center; width: 320px; padding: 40px; background: white; border-radius: 24px;">
+            <h2 style="color:#0ea5e9;">ASPRO-V2</h2>
             <input type="password" id="pinInput" placeholder="PIN Keamanan">
             <button id="btnLogin" class="btn-primary">LOGIN</button>
         </div>
@@ -21,7 +20,7 @@
 
     <div id="petugasOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.95); z-index:9999; align-items:center; justify-content:center;">
         <div style="text-align:center; width:320px; padding:40px; background:white; border-radius:24px;">
-            <h3 style="color:#0f172a;">Nama Petugas</h3>
+            <h3>Nama Petugas</h3>
             <input type="text" id="inputNamaPetugas" placeholder="Masukkan nama Anda">
             <button id="btnSetPetugas" class="btn-primary">MASUK SISTEM</button>
         </div>
@@ -32,9 +31,9 @@
             <div class="header-content">
                 <span style="font-weight:900; font-size:22px;">ASPRO-V2</span>
                 <div style="display:flex; gap:12px;">
-                    <button id="btnTheme" class="btn-outline">MODE</button>
+                    <button id="btnTheme" style="background:none; border:1px solid white; color:white; cursor:pointer; padding:5px 10px; border-radius:5px;">MODE</button>
                     <button id="btnExport" style="background:white; color:#0ea5e9; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">EXCEL</button>
-                    <button id="btnLogout" class="btn-outline" style="color:#ff4444; border-color:#ff4444;">LOGOUT</button>
+                    <button id="btnLogout" style="background:none; border:1px solid #ff4444; color:#ff4444; cursor:pointer; padding:5px 10px; border-radius:5px;">LOGOUT</button>
                 </div>
             </div>
         </header>
@@ -45,69 +44,65 @@
                     <h3 id="formTitle">ENTRY DATA</h3>
                     <form id="stokForm">
                         <input type="hidden" id="editId">
-                        <label>NAMA BARANG</label>
+                        <label><small>NAMA BARANG</small></label>
                         <input type="text" id="namaBarang" list="listBarang" placeholder="Nama barang...">
                         <datalist id="listBarang"></datalist>
                         
                         <div style="display:flex; gap:10px;">
-                            <div style="flex:2"><label>QTY</label><input type="number" id="jumlah"></div>
-                            <div style="flex:1"><label>SATUAN</label><input type="text" id="satuan" placeholder="Pcs"></div>
+                            <div style="flex:2"><label><small>QTY</small></label><input type="number" id="jumlah"></div>
+                            <div style="flex:1"><label><small>SATUAN</small></label><input type="text" id="satuan" placeholder="Pcs"></div>
                         </div>
 
-                        <label>JENIS TRANSAKSI</label>
+                        <label><small>JENIS</small></label>
                         <select id="jenis">
                             <option value="Masuk">Barang Masuk</option>
                             <option value="Keluar">Barang Keluar</option>
                         </select>
 
-                        <label>TANGGAL</label>
+                        <label><small>TANGGAL</small></label>
                         <input type="date" id="tanggal">
 
                         <button type="button" id="btnSimpan" class="btn-primary">SIMPAN</button>
-                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:white; margin-top:10px; cursor:pointer;">Batal Edit</button>
+                        <button id="btnBatal" type="button" style="display:none; color:white; width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Batal Edit</button>
                     </form>
                 </div>
 
                 <div class="panel-card">
                     <h3>STOK TERUPDATE</h3>
-                    <input type="text" id="cariStokSide" placeholder="Cari stok barang..." style="margin-bottom:10px; font-size:12px;">
-                    
                     <div class="mini-table-header">
                         <span>Item</span>
                         <span style="text-align:center">Qty</span>
                         <span style="text-align:right">Unit</span>
                     </div>
+                    <div class="stock-scroll-area" id="stockListContainer"></div>
+                </div>
 
-                    <div class="stock-scroll-area" id="stockListContainer">
-                        </div>
+                <div class="panel-card" style="background: rgba(0,0,0,0.2) !important;">
+                    <h3>MAINTENANCE</h3>
+                    <div style="display:flex; gap:8px;">
+                        <button id="btnBackupJSON" class="btn-tool">BACKUP</button>
+                        <button onclick="document.getElementById('fileRestore').click()" class="btn-tool">RESTORE</button>
+                        <input type="file" id="fileRestore" style="display:none" accept=".json">
+                    </div>
                 </div>
             </aside>
 
             <main class="main-panel">
                 <div style="display:flex; gap:12px; margin-bottom:20px;">
-                    <input type="text" id="cariBarang" placeholder="Cari riwayat transaksi..." style="flex-grow:1; margin-bottom:0;">
-                    <select id="filterJenis" style="width:180px; margin-bottom:0;">
-                        <option value="Semua">Semua Riwayat</option>
-                        <option value="Masuk">Hanya Masuk</option>
-                        <option value="Keluar">Hanya Keluar</option>
-                    </select>
+                    <input type="text" id="cariBarang" placeholder="Cari riwayat..." style="flex-grow:1; margin-bottom:0; border:1px solid #ccc;">
                 </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Jumlah</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th>Audit</th>
-                                <th style="text-align:center">Opsi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelBody"></tbody>
-                    </table>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Barang</th>
+                            <th>Jumlah</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                            <th>Opsi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelBody"></tbody>
+                </table>
             </main>
         </div>
     </div>
