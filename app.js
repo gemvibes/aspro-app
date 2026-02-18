@@ -7,10 +7,8 @@ let currentPetugas = localStorage.getItem("aspro_petugas") || "";
 let globalData = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
     if (localStorage.getItem("aspro_theme") === 'dark') document.body.setAttribute('data-theme', 'dark');
     
-    // Auth Logic
     if (localStorage.getItem("aspro_auth") === "true") {
         if (!currentPetugas) {
             document.getElementById('loginPage').style.display = 'none';
@@ -40,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnSimpan').onclick = simpanData;
     document.getElementById('btnBatal').onclick = resetForm;
     document.getElementById('cariBarang').oninput = renderTable;
-    document.getElementById('filterJenis').onchange = renderTable;
-    document.getElementById('cariStokSide').oninput = renderStockCard;
     document.getElementById('btnExport').onclick = exportExcel;
+    document.getElementById('btnBackupJSON').onclick = backupToJSON;
+    document.getElementById('fileRestore').onchange = restoreFromJSON;
 });
 
 function showApp() {
@@ -54,9 +52,8 @@ function showApp() {
 }
 
 async function loadItems() {
-    try {
-        let { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: false });
-        if (error) throw error;
+    let { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: false });
+    if (!error) {
         globalData = data;
         renderTable();
         renderStockCard();
@@ -64,57 +61,47 @@ async function loadItems() {
         const dl = document.getElementById('listBarang');
         const names = [...new Set(data.map(i => i.nama))];
         dl.innerHTML = names.map(n => `<option value="${n}">`).join("");
-    } catch (e) { console.error(e); }
+    }
 }
 
 function renderTable() {
     const tbody = document.getElementById("tabelBody");
     const search = document.getElementById('cariBarang').value.toLowerCase();
-    const fJenis = document.getElementById('filterJenis').value;
     tbody.innerHTML = "";
 
-    globalData.filter(i => i.nama.toLowerCase().includes(search) && (fJenis === "Semua" || i.jenis === fJenis))
-        .forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="font-weight:700">${item.nama}</td>
-                <td>${item.jumlah} <small>${item.satuan}</small></td>
-                <td><span style="padding:4px 8px; border-radius:6px; font-size:11px; font-weight:bold; background:${item.jenis === 'Masuk' ? '#14b8a6' : '#3b82f6'}; color:white;">${item.jenis.toUpperCase()}</span></td>
-                <td>${item.tanggal}</td>
-                <td style="font-size:12px;">👤 ${item.petugas || '-'}</td>
-                <td style="text-align:center">
-                    <button onclick='editData(${JSON.stringify(item)})' style="border:none; background:none; cursor:pointer;">✏️</button>
-                    <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:red; margin-left:10px;">🗑️</button>
-                </td>`;
-            tbody.appendChild(row);
-        });
+    globalData.filter(i => i.nama.toLowerCase().includes(search)).forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><b>${item.nama}</b></td>
+            <td>${item.jumlah} ${item.satuan}</td>
+            <td><span style="color:${item.jenis === 'Masuk' ? '#14b8a6' : '#3b82f6'}">${item.jenis}</span></td>
+            <td>${item.tanggal}</td>
+            <td>
+                <button onclick='editData(${JSON.stringify(item)})' style="cursor:pointer; border:none; background:none;">✏️</button>
+                <button onclick="hapusData(${item.id})" style="cursor:pointer; border:none; background:none; color:red; margin-left:10px;">🗑️</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
 }
 
 function renderStockCard() {
     const container = document.getElementById("stockListContainer");
-    const searchSide = document.getElementById('cariStokSide').value.toLowerCase();
     const stockMap = {};
 
     globalData.forEach(item => {
-        if (!stockMap[item.nama]) stockMap[item.nama] = { qty: 0, satuan: item.satuan, freq: 0 };
+        if (!stockMap[item.nama]) stockMap[item.nama] = { qty: 0, satuan: item.satuan };
         stockMap[item.nama].qty += (item.jenis === 'Masuk' ? item.jumlah : -item.jumlah);
-        stockMap[item.nama].freq++;
     });
 
-    let stockArray = Object.entries(stockMap).map(([nama, val]) => ({ nama, ...val }))
-                     .sort((a, b) => b.freq - a.freq);
-
-    if (searchSide) stockArray = stockArray.filter(i => i.nama.toLowerCase().includes(searchSide));
-
     container.innerHTML = "";
-    stockArray.forEach(item => {
+    Object.entries(stockMap).forEach(([nama, val]) => {
         const div = document.createElement('div');
         div.className = 'stock-row';
-        const color = item.qty <= 5 ? '#f43f5e' : 'rgba(255,255,255,0.2)';
+        const lowStock = val.qty <= 5;
         div.innerHTML = `
-            <span style="font-weight:600">${item.nama}</span>
-            <span style="text-align:center"><span class="qty-badge" style="background:${color}">${item.qty}</span></span>
-            <span style="text-align:right; font-size:11px; opacity:0.8;">${item.satuan}</span>
+            <span>${nama}</span>
+            <span style="text-align:center"><span class="qty-badge" style="background:${lowStock ? '#f43f5e' : 'rgba(255,255,255,0.2)'}">${val.qty}</span></span>
+            <span style="text-align:right; opacity:0.7;">${val.satuan}</span>
         `;
         container.appendChild(div);
     });
@@ -129,12 +116,40 @@ async function simpanData() {
         tanggal: document.getElementById('tanggal').value,
         petugas: currentPetugas
     };
-    if (!payload.nama || isNaN(payload.jumlah)) return alert("Isi data dengan lengkap!");
     
     if (isEditing) await _supabase.from("items").update(payload).eq('id', document.getElementById('editId').value);
     else await _supabase.from("items").insert([payload]);
     
     resetForm(); loadItems();
+}
+
+// LOGIKA RESTORE DATA LAMA
+async function restoreFromJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (confirm(`Impor ${data.length} data riwayat ke Supabase?`)) {
+                const { error } = await _supabase.from("items").insert(data);
+                if (error) throw error;
+                alert("Berhasil Restore!"); loadItems();
+            }
+        } catch (err) { alert("File tidak cocok!"); }
+    };
+    reader.readAsText(file);
+}
+
+function backupToJSON() {
+    const dataStr = JSON.stringify(globalData, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `backup_aspro.json`;
+    link.click();
 }
 
 function editData(item) {
@@ -147,7 +162,6 @@ function editData(item) {
     document.getElementById('tanggal').value = item.tanggal;
     document.getElementById('btnSimpan').innerText = "UPDATE";
     document.getElementById('btnBatal').style.display = "block";
-    window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function resetForm() {
@@ -158,11 +172,11 @@ function resetForm() {
     document.getElementById('tanggal').valueAsDate = new Date();
 }
 
-async function hapusData(id) { if(confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } }
+async function hapusData(id) { if(confirm("Hapus?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } }
 
 async function exportExcel() {
-    const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(globalData);
+    const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Audit");
-    XLSX.writeFile(wb, `ASPRO_REPORT.xlsx`);
+    XLSX.writeFile(wb, "Laporan_Aspro.xlsx");
 }
