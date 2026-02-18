@@ -27,7 +27,7 @@ body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); 
 header { 
     background: var(--header-bg); 
     border-bottom: 5px solid var(--accent); 
-    padding: 15px 24px; 
+    padding: 12px 24px; 
     color: white;
     position: sticky; top: 0; z-index: 100;
 }
