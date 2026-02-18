@@ -8,7 +8,6 @@ let currentPetugas = localStorage.getItem("aspro_petugas") || "";
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem("aspro_theme") === 'dark') document.body.setAttribute('data-theme', 'dark');
     
-    // Cek Sesi
     if (localStorage.getItem("aspro_auth") === "true") {
         if (!currentPetugas) {
             document.getElementById('loginPage').style.display = 'none';
@@ -16,35 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { showApp(); }
     }
 
-    // Login PIN + Enter
-    const pinInput = document.getElementById('pinInput');
-    const loginBtn = document.getElementById('btnLogin');
-    loginBtn.onclick = () => {
-        if (pinInput.value === "1234") {
+    document.getElementById('btnLogin').onclick = () => {
+        if (document.getElementById('pinInput').value === "1234") {
             localStorage.setItem("aspro_auth", "true");
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('petugasOverlay').style.display = 'flex';
         } else alert("PIN Salah!");
     };
-    pinInput.onkeypress = (e) => { if(e.key === 'Enter') loginBtn.click(); };
 
-    // Set Petugas + Enter
-    const petuInput = document.getElementById('inputNamaPetugas');
-    const petuBtn = document.getElementById('btnSetPetugas');
-    petuBtn.onclick = () => {
-        const val = petuInput.value.trim();
+    document.getElementById('btnSetPetugas').onclick = () => {
+        const val = document.getElementById('inputNamaPetugas').value.trim();
         if(val) { currentPetugas = val; localStorage.setItem("aspro_petugas", val); showApp(); }
     };
-    petuInput.onkeypress = (e) => { if(e.key === 'Enter') petuBtn.click(); };
 
-    // Logout & Theme
     document.getElementById('btnLogout').onclick = () => { localStorage.clear(); location.reload(); };
     document.getElementById('btnTheme').onclick = () => {
         const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.body.setAttribute('data-theme', t); localStorage.setItem('aspro_theme', t);
     };
 
-    // Form Aksi
     document.getElementById('btnSimpan').onclick = simpanData;
     document.getElementById('btnBatal').onclick = resetForm;
     document.getElementById('cariBarang').oninput = loadItems;
@@ -56,7 +45,6 @@ function showApp() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('petugasOverlay').style.display = 'none';
     document.getElementById('appPage').style.display = 'block';
-    document.getElementById('displayPetugas') ? document.getElementById('displayPetugas').innerText = "👤 " + currentPetugas : null;
     document.getElementById('tanggal').valueAsDate = new Date();
     loadItems();
 }
@@ -70,7 +58,6 @@ async function loadItems() {
         let { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: false });
         if (error) throw error;
 
-        // Auto Suggest
         const dl = document.getElementById('listBarang');
         const names = [...new Set(data.map(i => i.nama))];
         dl.innerHTML = names.map(n => `<option value="${n}">`).join("");
@@ -80,16 +67,15 @@ async function loadItems() {
             .forEach(item => {
                 item.jenis === 'Masuk' ? tIn += item.jumlah : tOut += item.jumlah;
                 const row = document.createElement('tr');
-                row.style.background = item.jenis === 'Masuk' ? 'var(--row-in)' : 'var(--row-out)';
                 row.innerHTML = `
                     <td style="font-weight:700">${item.nama}</td>
                     <td>${item.jumlah} <small>${item.satuan}</small></td>
-                    <td><small>${item.jenis}</small></td>
+                    <td>${item.jenis === 'Masuk' ? '🟢' : '🔵'} ${item.jenis}</td>
                     <td>${item.tanggal}</td>
-                    <td style="font-size:12px;">${item.petugas || '-'}</td>
+                    <td>${item.petugas || '-'}</td>
                     <td style="text-align:center">
                         <button onclick='editData(${JSON.stringify(item)})' style="border:none; background:none; cursor:pointer;">✏️</button>
-                        <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:var(--danger); margin-left:10px;">🗑️</button>
+                        <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:red; margin-left:10px;">🗑️</button>
                     </td>`;
                 tbody.appendChild(row);
             });
@@ -108,7 +94,7 @@ async function simpanData() {
         tanggal: document.getElementById('tanggal').value,
         petugas: currentPetugas
     };
-    if (!payload.nama || isNaN(payload.jumlah)) return alert("Lengkapi data!");
+    if (!payload.nama || isNaN(payload.jumlah)) return alert("Isi data dengan benar!");
     
     const id = document.getElementById('editId').value;
     if (isEditing) await _supabase.from("items").update(payload).eq('id', id);
@@ -125,7 +111,7 @@ function editData(item) {
     document.getElementById('satuan').value = item.satuan;
     document.getElementById('jenis').value = item.jenis;
     document.getElementById('tanggal').value = item.tanggal;
-    document.getElementById('btnSimpan').innerText = "Update Data";
+    document.getElementById('btnSimpan').innerText = "UPDATE DATA";
     document.getElementById('btnBatal').style.display = "block";
     window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -133,7 +119,7 @@ function editData(item) {
 function resetForm() {
     isEditing = false;
     document.getElementById('stokForm').reset();
-    document.getElementById('btnSimpan').innerText = "Simpan Transaksi";
+    document.getElementById('btnSimpan').innerText = "SIMPAN DATA";
     document.getElementById('btnBatal').style.display = "none";
     document.getElementById('tanggal').valueAsDate = new Date();
 }
@@ -143,6 +129,6 @@ async function hapusData(id) { if(confirm("Hapus data?")) { await _supabase.from
 async function exportExcel() {
     const { data } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Audit_Stok");
-    XLSX.writeFile(wb, `ASPRO_Report_${new Date().toLocaleDateString()}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data_Stok");
+    XLSX.writeFile(wb, "Laporan_ASPRO.xlsx");
 }
