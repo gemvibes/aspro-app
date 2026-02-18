@@ -183,9 +183,8 @@ async function hapusData(id) {
     if(confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } 
 }
 
-// FUNGSI EKSPOR 2 SHEET: RIWAYAT & RINGKASAN STOK
 async function exportExcel() {
-    // 1. DATA SHEET RIWAYAT
+    // DATA SHEET 1: RIWAYAT
     const dataRiwayat = globalData.map(item => ({
         "Nama Barang": item.nama,
         "Jumlah": item.jumlah,
@@ -195,7 +194,7 @@ async function exportExcel() {
         "Petugas": item.petugas || "-"
     }));
 
-    // 2. DATA SHEET RINGKASAN STOK (Menghitung Saldo Akhir)
+    // DATA SHEET 2: RINGKASAN STOK
     const stockMap = {};
     globalData.forEach(item => {
         if (!stockMap[item.nama]) stockMap[item.nama] = { qty: 0, satuan: item.satuan };
@@ -206,20 +205,15 @@ async function exportExcel() {
         "Nama Barang": nama,
         "Stok Akhir": val.qty,
         "Satuan": val.satuan,
-        "Keterangan": val.qty <= 5 ? "STOK KRITIS" : "AMAN"
+        "Keterangan": val.qty <= 5 ? "⚠️ STOK KRITIS" : "✅ AMAN"
     }));
 
-    // 3. PROSES PEMBUATAN WORKBOOK
     const wb = XLSX.utils.book_new();
-    
-    // Sheet 1: Riwayat
     const ws1 = XLSX.utils.json_to_sheet(dataRiwayat);
-    XLSX.utils.book_append_sheet(wb, ws1, "Riwayat");
-
-    // Sheet 2: Ringkasan Stok
     const ws2 = XLSX.utils.json_to_sheet(dataStok);
+    
+    XLSX.utils.book_append_sheet(wb, ws1, "Riwayat_Transaksi");
     XLSX.utils.book_append_sheet(wb, ws2, "Ringkasan_Stok");
-
-    // 4. DOWNLOAD FILE
-    XLSX.writeFile(wb, `Laporan_Aspro_Lengkap_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    XLSX.writeFile(wb, `Laporan_Aspro_V2_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
