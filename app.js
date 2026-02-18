@@ -64,6 +64,22 @@ async function loadItems() {
     }
 }
 
+// FUNGSI BARU: FORMAT TANGGAL dd-mm-yyyy
+function formatTanggal(tglStr) {
+    if (!tglStr) return "-";
+    // Memisahkan string jika ada format T (ISO)
+    const tglHanya = tglStr.split('T')[0]; 
+    const bagian = tglHanya.split('-'); // [yyyy, mm, dd]
+    
+    if (bagian.length !== 3) return tglStr;
+    
+    const yyyy = bagian[0];
+    const mm = bagian[1];
+    const dd = bagian[2];
+    
+    return `${dd}-${mm}-${yyyy}`; // Menghasilkan dd-mm-yyyy
+}
+
 function renderTable() {
     const tbody = document.getElementById("tabelBody");
     const search = document.getElementById('cariBarang').value.toLowerCase();
@@ -74,11 +90,11 @@ function renderTable() {
         row.innerHTML = `
             <td><b>${item.nama}</b></td>
             <td>${item.jumlah} ${item.satuan}</td>
-            <td><span style="color:${item.jenis === 'Masuk' ? '#14b8a6' : '#3b82f6'}">${item.jenis}</span></td>
-            <td>${item.tanggal}</td>
-            <td>
-                <button onclick='editData(${JSON.stringify(item)})' style="cursor:pointer; border:none; background:none;">✏️</button>
-                <button onclick="hapusData(${item.id})" style="cursor:pointer; border:none; background:none; color:red; margin-left:10px;">🗑️</button>
+            <td><span style="padding:4px 8px; border-radius:6px; font-size:10px; font-weight:bold; background:${item.jenis === 'Masuk' ? '#14b8a6' : '#3b82f6'}; color:white;">${item.jenis.toUpperCase()}</span></td>
+            <td>${formatTanggal(item.tanggal)}</td>
+            <td style="text-align:center">
+                <button onclick='editData(${JSON.stringify(item)})' style="cursor:pointer; border:none; background:none; font-size:16px;">✏️</button>
+                <button onclick="hapusData(${item.id})" style="cursor:pointer; border:none; background:none; color:red; margin-left:10px; font-size:16px;">🗑️</button>
             </td>`;
         tbody.appendChild(row);
     });
@@ -99,7 +115,7 @@ function renderStockCard() {
         div.className = 'stock-row';
         const lowStock = val.qty <= 5;
         div.innerHTML = `
-            <span>${nama}</span>
+            <span style="font-weight:600">${nama}</span>
             <span style="text-align:center"><span class="qty-badge" style="background:${lowStock ? '#f43f5e' : 'rgba(255,255,255,0.2)'}">${val.qty}</span></span>
             <span style="text-align:right; opacity:0.7;">${val.satuan}</span>
         `;
@@ -117,13 +133,14 @@ async function simpanData() {
         petugas: currentPetugas
     };
     
+    if (!payload.nama || isNaN(payload.jumlah)) return alert("Lengkapi data!");
+
     if (isEditing) await _supabase.from("items").update(payload).eq('id', document.getElementById('editId').value);
     else await _supabase.from("items").insert([payload]);
     
     resetForm(); loadItems();
 }
 
-// LOGIKA RESTORE DATA LAMA
 async function restoreFromJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -132,12 +149,12 @@ async function restoreFromJSON(event) {
     reader.onload = async (e) => {
         try {
             const data = JSON.parse(e.target.result);
-            if (confirm(`Impor ${data.length} data riwayat ke Supabase?`)) {
+            if (confirm(`Impor ${data.length} data riwayat ke database?`)) {
                 const { error } = await _supabase.from("items").insert(data);
                 if (error) throw error;
-                alert("Berhasil Restore!"); loadItems();
+                alert("Restore Berhasil!"); loadItems();
             }
-        } catch (err) { alert("File tidak cocok!"); }
+        } catch (err) { alert("Format file JSON tidak sesuai!"); }
     };
     reader.readAsText(file);
 }
@@ -148,7 +165,7 @@ function backupToJSON() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `backup_aspro.json`;
+    link.download = `backup_aspro_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
 }
 
@@ -160,8 +177,9 @@ function editData(item) {
     document.getElementById('satuan').value = item.satuan;
     document.getElementById('jenis').value = item.jenis;
     document.getElementById('tanggal').value = item.tanggal;
-    document.getElementById('btnSimpan').innerText = "UPDATE";
+    document.getElementById('btnSimpan').innerText = "UPDATE DATA";
     document.getElementById('btnBatal').style.display = "block";
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function resetForm() {
@@ -172,11 +190,16 @@ function resetForm() {
     document.getElementById('tanggal').valueAsDate = new Date();
 }
 
-async function hapusData(id) { if(confirm("Hapus?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } }
+async function hapusData(id) { 
+    if(confirm("Hapus data riwayat ini?")) { 
+        await _supabase.from("items").delete().eq('id', id); 
+        loadItems(); 
+    } 
+}
 
 async function exportExcel() {
     const ws = XLSX.utils.json_to_sheet(globalData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Audit");
-    XLSX.writeFile(wb, "Laporan_Aspro.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Audit_Stok");
+    XLSX.writeFile(wb, "Laporan_Aspro_V2.xlsx");
 }
