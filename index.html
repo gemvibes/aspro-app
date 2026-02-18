@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASPRO-V2 Audit Edition</title>
+    <title>ASPRO-V2 Professional Audit</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,38 +14,34 @@
     <div id="loginPage" class="login-wrapper">
         <div class="login-box">
             <div class="logo-circle">
-                <img src="https://raw.githubusercontent.com/gemvibes/aspro-app/refs/heads/main/logo%20aspro.png" 
-                     alt="Logo ASPRO"
-                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i data-lucide=\'package\' style=\'width:40px;height:40px;color:#2563eb\'></i>'">
+                <img src="https://raw.githubusercontent.com/gemvibes/aspro-app/refs/heads/main/logo%20aspro.png" alt="Logo">
             </div>
-            <h2 style="margin: 0; color: var(--primary);">ASPRO-V2</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">ATK Stock Profesional</p>
-            <input type="password" id="pinInput" placeholder="Masukkan PIN" autofocus>
+            <h2 style="margin:0; color:var(--primary);">ASPRO-V2</h2>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Audit & Stock Control</p>
+            <input type="password" id="pinInput" placeholder="Masukkan PIN">
             <button id="btnLogin" class="btn-primary">Login</button>
         </div>
     </div>
 
     <div id="petugasOverlay" style="display:none;">
         <div class="login-box">
-            <div style="margin-bottom: 15px; color: var(--primary);"><i data-lucide="user-circle-2" style="width: 48px; height: 48px;"></i></div>
+            <div style="color:var(--accent); margin-bottom:15px;"><i data-lucide="user-plus" style="width:48px;height:48px;"></i></div>
             <h3>Identitas Petugas</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Siapa yang bertugas di PC ini sekarang?</p>
-            <input type="text" id="inputNamaPetugas" placeholder="Ketik nama Anda...">
-            <button id="btnSetPetugas" class="btn-primary">Masuk Ke Sistem</button>
+            <input type="text" id="inputNamaPetugas" placeholder="Nama Lengkap Anda">
+            <button id="btnSetPetugas" class="btn-primary">Masuk Sistem</button>
         </div>
     </div>
 
     <div id="appPage" style="display:none;">
         <header>
             <div class="header-content">
-                <span style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
-                    <i data-lucide="layers" style="width: 20px;"></i> ASPRO-V2
+                <span style="font-weight:900; color:var(--primary); font-size:20px; display:flex; align-items:center; gap:10px;">
+                    <i data-lucide="shield-check"></i> ASPRO-V2
                 </span>
-                <div style="display: flex; align-items: center;">
-                    <span id="displayPetugas" style="font-size: 13px; margin-right: 20px; font-weight: 600; color: var(--primary);"></span>
-                    <button id="btnTheme" class="btn-outline">🌙 Mode</button>
-                    <button id="btnExport" style="background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-right: 8px;">Excel</button>
-                    <button id="btnLogout" class="btn-outline" style="background: var(--danger); color: white;">Logout</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="btnTheme" class="btn-outline">🌙</button>
+                    <button id="btnExport" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:10px; cursor:pointer; font-weight:bold;">Export Excel</button>
+                    <button id="btnLogout" class="btn-outline" style="border-color:var(--danger); color:var(--danger);">Logout</button>
                 </div>
             </div>
         </header>
@@ -53,47 +49,66 @@
         <div class="split-container">
             <aside class="side-panel">
                 <div class="panel-card">
-                    <h3 id="formTitle" style="margin-top: 0;"><i data-lucide="file-plus-2" style="width:18px;"></i> Transaksi</h3>
+                    <h3 id="formTitle" style="margin:0 0 20px 0; color:var(--primary);">Input Transaksi</h3>
                     <form id="stokForm">
                         <input type="hidden" id="editId">
                         <label><small>Nama Barang</small></label>
-                        <input type="text" id="namaBarang" list="listBarang" placeholder="Cari/Ketik..." autocomplete="off" required>
+                        <input type="text" id="namaBarang" list="listBarang" placeholder="Cari barang..." autocomplete="off">
                         <datalist id="listBarang"></datalist>
-                        <div style="display: flex; gap: 12px;">
-                            <div style="flex:1"><label><small>Jumlah</small></label><input type="number" id="jumlah" required></div>
-                            <div style="flex:1"><label><small>Satuan</small></label><input type="text" id="satuan" placeholder="Pcs" required></div>
+                        <div style="display:flex; gap:10px;">
+                            <div style="flex:2"><label><small>Qty</small></label><input type="number" id="jumlah"></div>
+                            <div style="flex:1"><label><small>Satuan</small></label><input type="text" id="satuan" placeholder="Pcs"></div>
                         </div>
                         <label><small>Jenis</small></label>
                         <select id="jenis">
                             <option value="Masuk">🟢 Barang Masuk</option>
                             <option value="Keluar">🔵 Barang Keluar</option>
                         </select>
-                        <label><small>Tanggal</small></label>
-                        <input type="date" id="tanggal" required>
-                        <button type="button" id="btnSimpan" class="btn-primary">💾 Simpan Data</button>
-                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:var(--text-muted); cursor:pointer; margin-top:10px;">Batal</button>
+                        <label><small>Tanggal Audit</small></label>
+                        <input type="date" id="tanggal">
+                        <button type="button" id="btnSimpan" class="btn-primary">Simpan Transaksi</button>
+                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:var(--text-muted); cursor:pointer; margin-top:10px;">Batal Edit</button>
                     </form>
                 </div>
                 <div class="summary-box">
-                    <div class="stat-item" style="background:var(--row-in);"><small>Masuk</small><h2 id="sumMasuk">0</h2></div>
-                    <div class="stat-item" style="background:var(--row-out);"><small>Keluar</small><h2 id="sumKeluar">0</h2></div>
+                    <div class="stat-item" style="border-top: 4px solid var(--accent);">
+                        <small>TOTAL MASUK</small><h2 id="sumMasuk">0</h2>
+                    </div>
+                    <div class="stat-item" style="border-top: 4px solid var(--primary);">
+                        <small>TOTAL KELUAR</small><h2 id="sumKeluar">0</h2>
+                    </div>
                 </div>
             </aside>
 
             <main class="main-panel">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="cariBarang" placeholder="Cari data..." style="margin:0;">
-                    <select id="filterJenis" style="margin:0; width:150px;"><option value="Semua">Semua</option><option value="Masuk">Masuk</option><option value="Keluar">Keluar</option></select>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="cariBarang" placeholder="Cari data di tabel..." style="margin:0;">
+                    <select id="filterJenis" style="margin:0; width:150px;">
+                        <option value="Semua">Semua</option>
+                        <option value="Masuk">Masuk</option>
+                        <option value="Keluar">Keluar</option>
+                    </select>
                 </div>
-                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+                <div class="table-responsive">
                     <table>
-                        <thead><tr><th>Barang</th><th>Jumlah</th><th>Jenis</th><th>Tanggal</th><th>Petugas</th><th style="text-align:center">Aksi</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Barang</th>
+                                <th>Stok</th>
+                                <th>Jenis</th>
+                                <th>Tanggal</th>
+                                <th>Petugas</th>
+                                <th style="text-align:center">Aksi</th>
+                            </tr>
+                        </thead>
                         <tbody id="tabelBody"></tbody>
                     </table>
                 </div>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:10px;">* Gunakan mode Landscape atau geser tabel di HP untuk melihat kolom Aksi.</p>
             </main>
         </div>
     </div>
+
     <script src="app.js"></script>
     <script>lucide.createIcons();</script>
 </body>
