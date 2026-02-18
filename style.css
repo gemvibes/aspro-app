@@ -70,7 +70,6 @@ input, select {
     border-radius: 12px; cursor: pointer; font-weight: 900;
 }
 
-/* MINI TABLE SIDEBAR */
 .mini-table-header {
     display: grid; grid-template-columns: 2fr 1fr 1fr;
     padding: 8px 5px; border-bottom: 2px solid rgba(255,255,255,0.3);
@@ -84,10 +83,8 @@ input, select {
 }
 .qty-badge { background: rgba(255,255,255,0.2); padding: 3px 6px; border-radius: 5px; font-weight: bold; text-align: center; }
 
-/* MAIN TABLE KANAN (SCROLL & ZEBRA) */
 .main-panel { flex-grow: 1; padding: 40px; overflow: hidden; }
 
-/* Kontainer untuk limit 15 baris (estimasi tinggi 55px per baris x 15 + header) */
 .table-scroll-container {
     max-height: 720px; 
     overflow-y: auto;
@@ -99,7 +96,6 @@ input, select {
 
 table { width: 100%; border-collapse: collapse; position: relative; }
 
-/* Sticky Header */
 thead th { 
     background: var(--primary); 
     color: white; 
@@ -114,20 +110,16 @@ thead th {
 
 td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
 
-/* Zebra Stripe - Warna Selang Seling */
 tbody tr:nth-child(even) {
-    background-color: rgba(14, 165, 233, 0.05); /* Biru sangat muda */
+    background-color: rgba(14, 165, 233, 0.05);
 }
 [data-theme="dark"] tbody tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.03); /* Putih transparan */
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* Scrollbar Style */
 .table-scroll-container::-webkit-scrollbar { width: 8px; }
-.table-scroll-container::-webkit-scrollbar-track { background: transparent; }
 .table-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-/* MAINTENANCE TOOLS */
 .btn-tool {
     background: rgba(255,255,255,0.1); color: white;
     border: 1px dashed rgba(255,255,255,0.4); padding: 10px;
