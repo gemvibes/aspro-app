@@ -31,7 +31,7 @@
             <div class="header-content">
                 <span style="font-weight:900; font-size:22px;">ASPRO-V2</span>
                 <div style="display:flex; gap:12px;">
-                    <button id="btnTheme" style="background:none; border:1px solid white; color:white; cursor:pointer; padding:5px 10px; border-radius:5px;">MODE</button>
+                    <button id="btnTheme" style="background:none; border:1px solid white; color:white; cursor:pointer; padding:5px 10px; border-radius:5px;">🌓 MODE</button>
                     <button id="btnExport" style="background:white; color:#0ea5e9; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">EXCEL</button>
                     <button id="btnLogout" style="background:none; border:1px solid #ff4444; color:#ff4444; cursor:pointer; padding:5px 10px; border-radius:5px;">LOGOUT</button>
                 </div>
@@ -55,15 +55,15 @@
 
                         <label><small>JENIS</small></label>
                         <select id="jenis">
-                            <option value="Masuk">Barang Masuk</option>
-                            <option value="Keluar">Barang Keluar</option>
+                            <option value="Masuk">🟢 Barang Masuk</option>
+                            <option value="Keluar">🔵 Barang Keluar</option>
                         </select>
 
                         <label><small>TANGGAL</small></label>
                         <input type="date" id="tanggal">
 
                         <button type="button" id="btnSimpan" class="btn-primary">SIMPAN</button>
-                        <button id="btnBatal" type="button" style="display:none; color:white; width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Batal Edit</button>
+                        <button id="btnBatal" type="button" style="display:none; color:white; width:100%; background:none; border:none; margin-top:10px; cursor:pointer; text-decoration:underline;">Batal Edit</button>
                     </form>
                 </div>
 
@@ -89,7 +89,7 @@
 
             <main class="main-panel">
                 <div style="display:flex; gap:12px; margin-bottom:20px;">
-                    <input type="text" id="cariBarang" placeholder="Cari riwayat..." style="flex-grow:1; margin-bottom:0; border:1px solid #ccc;">
+                    <input type="text" id="cariBarang" placeholder="Cari riwayat transaksi..." style="flex-grow:1; margin-bottom:0; border:1px solid #cbd5e1; border-radius:10px; padding:12px;">
                 </div>
                 <table>
                     <thead>
@@ -98,7 +98,7 @@
                             <th>Jumlah</th>
                             <th>Status</th>
                             <th>Tanggal</th>
-                            <th>Opsi</th>
+                            <th style="text-align:center">Opsi</th>
                         </tr>
                     </thead>
                     <tbody id="tabelBody"></tbody>
