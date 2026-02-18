@@ -1,99 +1,97 @@
 :root {
     /* LIGHT MODE */
     --bg-body: #ffffff; 
-    --bg-side: #f0f9ff; /* Biru Langit sangat muda untuk sidebar */
-    --bg-card: #ffffff;
+    --bg-side: #f8fafc; /* Background area sidebar */
+    --menu-card: #0ea5e9; /* Biru untuk kotak menu di sidebar */
     --text-main: #0f172a; 
+    --text-on-menu: #ffffff; /* Tulisan di dalam menu biru harus putih */
     --border: #cbd5e1;
     --primary: #0ea5e9; 
-    --accent: #14b8a6;  
-    --row-in: #f0fdfa;  
-    --row-out: #f0f9ff;
+    --accent: #14b8a6;  /* Hijau Tosca untuk pemisah */
 }
 
 [data-theme="dark"] {
-    /* DARK MODE HIGH CONTRAST */
-    --bg-body: #020617; /* Hitam Navy Pekat */
-    --bg-side: #0f172a; /* Navy sedikit lebih terang untuk sidebar */
-    --bg-card: #1e293b; /* Card lebih terang agar kontras */
-    --text-main: #ffffff; /* Putih Murni agar tajam */
-    --text-muted: #94a3b8;
+    /* DARK MODE */
+    --bg-body: #020617; 
+    --bg-side: #0f172a; 
+    --menu-card: #1e40af; /* Biru lebih deep untuk dark mode */
+    --text-main: #ffffff; 
+    --text-on-menu: #ffffff;
     --border: #334155;
     --primary: #38bdf8; 
     --accent: #2dd4bf;
-    --row-in: #064e3b;
-    --row-out: #0c4a6e;
 }
 
 body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); color: var(--text-main); transition: 0.3s; }
 
-/* LAYOUT SPLIT WARNA */
-header { background: var(--bg-card); border-bottom: 2px solid var(--primary); padding: 15px 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+/* HEADER */
+header { 
+    background: var(--bg-body); 
+    border-bottom: 4px solid var(--accent); /* Pemisah Tosca di Atas */
+    padding: 15px 24px; 
+}
 
 .split-container { 
     display: flex; 
-    max-width: 100%; /* Full screen agar lebih lega */
-    margin: 0; 
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 75px);
 }
 
-/* Sidebar Kiri (Area Input) */
+/* SIDEBAR KIRI */
 .side-panel { 
     width: 380px; 
-    background: var(--bg-side); /* Warna berbeda untuk memisahkan */
+    background: var(--bg-side); 
     padding: 30px;
-    border-right: 1px solid var(--border);
+    border-right: 5px solid var(--accent); /* GARIS PEMISAH HIJAU TOSCA */
     flex-shrink: 0;
 }
 
-/* Panel Kanan (Area Data) */
-.main-panel { 
-    flex-grow: 1; 
-    padding: 30px;
-    background: var(--bg-body);
-    min-width: 0;
-}
-
-/* KONTRAST CARD DI DARK MODE */
-.panel-card { 
-    background: var(--bg-card); 
+/* KOTAK MENU BIRU (FORM & SUMMARY) */
+.panel-card, .stat-item { 
+    background: var(--menu-card) !important; 
+    color: var(--text-on-menu) !important;
     padding: 24px; 
     border-radius: 16px; 
-    border: 1px solid var(--border);
+    border: none;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-/* TABLE STYLING */
+/* Memastikan label & input di dalam menu biru tetap kontras */
+.panel-card label, .panel-card h3, .stat-item small, .stat-item h2 {
+    color: #ffffff !important;
+}
+
+.panel-card input, .panel-card select {
+    background: #ffffff !important;
+    color: #0f172a !important; /* Teks input tetap gelap agar mudah dibaca */
+    border: 2px solid #e2e8f0;
+}
+
+/* PANEL KANAN */
+.main-panel { 
+    flex-grow: 1; 
+    padding: 40px;
+    background: var(--bg-body);
+}
+
+/* TABLE */
 .table-responsive { 
     border-radius: 12px; 
-    border: 1px solid var(--border); 
-    background: var(--bg-card); 
-    overflow-x: auto;
+    border: 2px solid var(--border); 
+    background: var(--bg-body);
 }
-table { width: 100%; border-collapse: collapse; min-width: 650px; }
-th { background: var(--primary); color: #020617; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 12px; }
-td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); }
+th { background: var(--primary); color: #ffffff; padding: 15px; text-transform: uppercase; font-size: 12px; }
+td { padding: 15px; border-bottom: 1px solid var(--border); color: var(--text-main); }
 
-/* Tombol High Contrast */
+/* BUTTONS */
 .btn-primary { 
     background: var(--accent); 
-    color: #020617; /* Teks gelap di tombol terang agar kontras */
+    color: #020617; 
     border: none; padding: 15px; width: 100%; border-radius: 12px; 
-    cursor: pointer; font-weight: 800; font-size: 15px; 
-}
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
-
-input, select { 
-    background: var(--bg-card); 
-    color: var(--text-main); 
-    border: 2px solid var(--border); 
-    padding: 12px; 
-    border-radius: 10px; 
-    margin-bottom: 15px;
-    width: 100%;
+    cursor: pointer; font-weight: 800;
 }
 
 @media (max-width: 1000px) {
     .split-container { flex-direction: column; }
-    .side-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .side-panel { width: 100%; border-right: none; border-bottom: 5px solid var(--accent); }
 }
