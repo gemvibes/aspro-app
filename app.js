@@ -8,6 +8,7 @@ let currentPetugas = localStorage.getItem("aspro_petugas") || "";
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem("aspro_theme") === 'dark') document.body.setAttribute('data-theme', 'dark');
     
+    // Auth Check
     if (localStorage.getItem("aspro_auth") === "true") {
         if (!currentPetugas) {
             document.getElementById('loginPage').style.display = 'none';
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { showApp(); }
     }
 
+    // Login Event
     document.getElementById('btnLogin').onclick = () => {
         if (document.getElementById('pinInput').value === "1234") {
             localStorage.setItem("aspro_auth", "true");
@@ -22,12 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('petugasOverlay').style.display = 'flex';
         } else alert("PIN Salah!");
     };
+    document.getElementById('pinInput').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('btnLogin').click(); };
 
+    // Petugas Event
     document.getElementById('btnSetPetugas').onclick = () => {
         const val = document.getElementById('inputNamaPetugas').value.trim();
         if(val) { currentPetugas = val; localStorage.setItem("aspro_petugas", val); showApp(); }
     };
+    document.getElementById('inputNamaPetugas').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('btnSetPetugas').click(); };
 
+    // Global UI Events
     document.getElementById('btnLogout').onclick = () => { localStorage.clear(); location.reload(); };
     document.getElementById('btnTheme').onclick = () => {
         const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -58,6 +64,7 @@ async function loadItems() {
         let { data, error } = await _supabase.from("items").select("*").order("tanggal", { ascending: false });
         if (error) throw error;
 
+        // Update Auto Suggest
         const dl = document.getElementById('listBarang');
         const names = [...new Set(data.map(i => i.nama))];
         dl.innerHTML = names.map(n => `<option value="${n}">`).join("");
@@ -70,12 +77,12 @@ async function loadItems() {
                 row.innerHTML = `
                     <td style="font-weight:700">${item.nama}</td>
                     <td>${item.jumlah} <small>${item.satuan}</small></td>
-                    <td>${item.jenis === 'Masuk' ? '🟢' : '🔵'} ${item.jenis}</td>
+                    <td><span style="padding:4px 8px; border-radius:6px; font-size:11px; font-weight:bold; background:${item.jenis === 'Masuk' ? '#14b8a6' : '#3b82f6'}; color:white;">${item.jenis.toUpperCase()}</span></td>
                     <td>${item.tanggal}</td>
-                    <td>${item.petugas || '-'}</td>
+                    <td style="font-size:12px;">👤 ${item.petugas || '-'}</td>
                     <td style="text-align:center">
-                        <button onclick='editData(${JSON.stringify(item)})' style="border:none; background:none; cursor:pointer;">✏️</button>
-                        <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:red; margin-left:10px;">🗑️</button>
+                        <button onclick='editData(${JSON.stringify(item)})' style="border:none; background:none; cursor:pointer; font-size:16px;">✏️</button>
+                        <button onclick="hapusData(${item.id})" style="border:none; background:none; cursor:pointer; color:red; margin-left:12px; font-size:16px;">🗑️</button>
                     </td>`;
                 tbody.appendChild(row);
             });
@@ -94,7 +101,7 @@ async function simpanData() {
         tanggal: document.getElementById('tanggal').value,
         petugas: currentPetugas
     };
-    if (!payload.nama || isNaN(payload.jumlah)) return alert("Isi data dengan benar!");
+    if (!payload.nama || isNaN(payload.jumlah)) return alert("Data belum lengkap!");
     
     const id = document.getElementById('editId').value;
     if (isEditing) await _supabase.from("items").update(payload).eq('id', id);
@@ -119,16 +126,16 @@ function editData(item) {
 function resetForm() {
     isEditing = false;
     document.getElementById('stokForm').reset();
-    document.getElementById('btnSimpan').innerText = "SIMPAN DATA";
+    document.getElementById('btnSimpan').innerText = "SIMPAN TRANSAKSI";
     document.getElementById('btnBatal').style.display = "none";
     document.getElementById('tanggal').valueAsDate = new Date();
 }
 
-async function hapusData(id) { if(confirm("Hapus data?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } }
+async function hapusData(id) { if(confirm("Hapus baris data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } }
 
 async function exportExcel() {
     const { data } = await _supabase.from("items").select("*").order("tanggal", { ascending: true });
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data_Stok");
-    XLSX.writeFile(wb, "Laporan_ASPRO.xlsx");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Audit_Log");
+    XLSX.writeFile(wb, `ASPRO_REPORT_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
