@@ -11,35 +11,30 @@
 </head>
 <body data-theme="light">
 
-    <div id="loginPage" class="login-wrapper" style="display: flex; height: 100vh; align-items: center; justify-content: center; background: #0ea5e9;">
+    <div id="loginPage" style="display: flex; height: 100vh; align-items: center; justify-content: center; background: #0ea5e9;">
         <div style="text-align: center; width: 320px; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 20px 25px rgba(0,0,0,0.2);">
-            <div style="width: 80px; height: 80px; margin: 0 auto 20px;"><img src="https://raw.githubusercontent.com/gemvibes/aspro-app/refs/heads/main/logo%20aspro.png" style="width: 100%;"></div>
-            <h2 style="color:#0ea5e9; margin:0;">ASPRO-V2</h2>
-            <p style="color:#64748b; font-size:14px; margin-bottom:20px;">Stock Audit System</p>
-            <input type="password" id="pinInput" placeholder="PIN Keamanan" style="border:2px solid #e2e8f0;">
-            <button id="btnLogin" class="btn-primary" style="background:#14b8a6; color:white;">LOGIN</button>
+            <h2 style="color:#0ea5e9; margin-bottom:20px;">ASPRO-V2</h2>
+            <input type="password" id="pinInput" placeholder="PIN Keamanan">
+            <button id="btnLogin" class="btn-primary">LOGIN</button>
         </div>
     </div>
 
-    <div id="petugasOverlay" style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 9999;">
-        <div style="text-align: center; width: 320px; padding: 40px; background: white; border-radius: 24px; border:4px solid #14b8a6;">
-            <i data-lucide="user-check" style="width:48px; height:48px; color:#14b8a6;"></i>
-            <h3 style="color:#0f172a;">Identitas Petugas</h3>
-            <input type="text" id="inputNamaPetugas" placeholder="Nama Anda" style="border:2px solid #e2e8f0;">
-            <button id="btnSetPetugas" class="btn-primary" style="background:#14b8a6; color:white;">MASUK SISTEM</button>
+    <div id="petugasOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.95); z-index:9999; align-items:center; justify-content:center;">
+        <div style="text-align:center; width:320px; padding:40px; background:white; border-radius:24px;">
+            <h3 style="color:#0f172a;">Nama Petugas</h3>
+            <input type="text" id="inputNamaPetugas" placeholder="Masukkan nama Anda">
+            <button id="btnSetPetugas" class="btn-primary">MASUK SISTEM</button>
         </div>
     </div>
 
     <div id="appPage" style="display:none;">
         <header>
             <div class="header-content">
-                <span style="font-weight:900; font-size:24px; display:flex; align-items:center; gap:10px;">
-                    <i data-lucide="package-search"></i> ASPRO-V2
-                </span>
+                <span style="font-weight:900; font-size:22px;">ASPRO-V2</span>
                 <div style="display:flex; gap:12px;">
-                    <button id="btnTheme" class="btn-outline">🌓 MODE</button>
-                    <button id="btnExport" style="background:#ffffff; color:#0ea5e9; border:none; padding:8px 16px; border-radius:10px; cursor:pointer; font-weight:bold;">EXCEL</button>
-                    <button id="btnLogout" class="btn-outline" style="border-color:#ff4444; color:#ff4444;">LOGOUT</button>
+                    <button id="btnTheme" class="btn-outline">MODE</button>
+                    <button id="btnExport" style="background:white; color:#0ea5e9; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">EXCEL</button>
+                    <button id="btnLogout" class="btn-outline" style="color:#ff4444; border-color:#ff4444;">LOGOUT</button>
                 </div>
             </div>
         </header>
@@ -50,49 +45,51 @@
                     <h3 id="formTitle">ENTRY DATA</h3>
                     <form id="stokForm">
                         <input type="hidden" id="editId">
-                        <label><small>NAMA BARANG</small></label>
-                        <input type="text" id="namaBarang" list="listBarang" placeholder="Ketik nama...">
+                        <label>NAMA BARANG</label>
+                        <input type="text" id="namaBarang" list="listBarang" placeholder="Nama barang...">
                         <datalist id="listBarang"></datalist>
                         
                         <div style="display:flex; gap:10px;">
-                            <div style="flex:2"><label><small>QTY</small></label><input type="number" id="jumlah"></div>
-                            <div style="flex:1"><label><small>SATUAN</small></label><input type="text" id="satuan" placeholder="Pcs"></div>
+                            <div style="flex:2"><label>QTY</label><input type="number" id="jumlah"></div>
+                            <div style="flex:1"><label>SATUAN</label><input type="text" id="satuan" placeholder="Pcs"></div>
                         </div>
 
-                        <label><small>JENIS</small></label>
+                        <label>JENIS TRANSAKSI</label>
                         <select id="jenis">
-                            <option value="Masuk">🟢 Barang Masuk</option>
-                            <option value="Keluar">🔵 Barang Keluar</option>
+                            <option value="Masuk">Barang Masuk</option>
+                            <option value="Keluar">Barang Keluar</option>
                         </select>
 
-                        <label><small>TANGGAL</small></label>
+                        <label>TANGGAL</label>
                         <input type="date" id="tanggal">
 
-                        <button type="button" id="btnSimpan" class="btn-primary">SIMPAN TRANSAKSI</button>
-                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:white; cursor:pointer; margin-top:10px; text-decoration:underline;">Batal Edit</button>
+                        <button type="button" id="btnSimpan" class="btn-primary">SIMPAN</button>
+                        <button id="btnBatal" type="button" style="display:none; width:100%; border:none; background:none; color:white; margin-top:10px; cursor:pointer;">Batal Edit</button>
                     </form>
                 </div>
 
                 <div class="panel-card">
-                    <h3 style="display:flex; justify-content:space-between; align-items:center;">
-                        STOK TERUPDATE 
-                        <i data-lucide="bar-chart-2" style="width:20px;"></i>
-                    </h3>
-                    <input type="text" id="cariStokSide" placeholder="🔍 Cari item stok..." style="margin-bottom:10px; font-size:13px; padding:10px;">
+                    <h3>STOK TERUPDATE</h3>
+                    <input type="text" id="cariStokSide" placeholder="Cari stok barang..." style="margin-bottom:10px; font-size:12px;">
                     
-                    <div class="stock-list-container" id="stockListContainer">
-                        <div style="text-align:center; padding:20px; color:rgba(255,255,255,0.7);">Memuat data...</div>
+                    <div class="mini-table-header">
+                        <span>Item</span>
+                        <span style="text-align:center">Qty</span>
+                        <span style="text-align:right">Unit</span>
                     </div>
+
+                    <div class="stock-scroll-area" id="stockListContainer">
+                        </div>
                 </div>
             </aside>
 
             <main class="main-panel">
-                <div style="display:flex; gap:12px; margin-bottom:30px;">
-                    <input type="text" id="cariBarang" placeholder="Cari riwayat transaksi..." style="flex-grow:1; margin-bottom:0; border:2px solid var(--border);">
-                    <select id="filterJenis" style="width:180px; margin-bottom:0; border:2px solid var(--border);">
+                <div style="display:flex; gap:12px; margin-bottom:20px;">
+                    <input type="text" id="cariBarang" placeholder="Cari riwayat transaksi..." style="flex-grow:1; margin-bottom:0;">
+                    <select id="filterJenis" style="width:180px; margin-bottom:0;">
                         <option value="Semua">Semua Riwayat</option>
-                        <option value="Masuk">Riwayat Masuk</option>
-                        <option value="Keluar">Riwayat Keluar</option>
+                        <option value="Masuk">Hanya Masuk</option>
+                        <option value="Keluar">Hanya Keluar</option>
                     </select>
                 </div>
 
@@ -100,11 +97,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Item Barang</th>
+                                <th>Item</th>
                                 <th>Jumlah</th>
                                 <th>Status</th>
                                 <th>Tanggal</th>
-                                <th>Petugas</th>
+                                <th>Audit</th>
                                 <th style="text-align:center">Opsi</th>
                             </tr>
                         </thead>
@@ -116,6 +113,5 @@
     </div>
 
     <script src="app.js"></script>
-    <script>lucide.createIcons();</script>
 </body>
 </html>
