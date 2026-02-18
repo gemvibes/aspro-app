@@ -183,20 +183,43 @@ async function hapusData(id) {
     if(confirm("Hapus data ini?")) { await _supabase.from("items").delete().eq('id', id); loadItems(); } 
 }
 
-// PERBAIKAN: Fungsi Export yang memformat tanggal dd-mm-yyyy
+// FUNGSI EKSPOR 2 SHEET: RIWAYAT & RINGKASAN STOK
 async function exportExcel() {
-    // 1. Buat data baru khusus untuk ekspor agar data asli tidak berubah
-    const dataUntukExcel = globalData.map(item => ({
+    // 1. DATA SHEET RIWAYAT
+    const dataRiwayat = globalData.map(item => ({
         "Nama Barang": item.nama,
         "Jumlah": item.jumlah,
         "Satuan": item.satuan,
         "Status": item.jenis,
-        "Tanggal": formatTanggal(item.tanggal), // Memanggil fungsi format di sini
+        "Tanggal": formatTanggal(item.tanggal),
         "Petugas": item.petugas || "-"
     }));
 
-    const ws = XLSX.utils.json_to_sheet(dataUntukExcel);
+    // 2. DATA SHEET RINGKASAN STOK (Menghitung Saldo Akhir)
+    const stockMap = {};
+    globalData.forEach(item => {
+        if (!stockMap[item.nama]) stockMap[item.nama] = { qty: 0, satuan: item.satuan };
+        stockMap[item.nama].qty += (item.jenis === 'Masuk' ? item.jumlah : -item.jumlah);
+    });
+
+    const dataStok = Object.entries(stockMap).map(([nama, val]) => ({
+        "Nama Barang": nama,
+        "Stok Akhir": val.qty,
+        "Satuan": val.satuan,
+        "Keterangan": val.qty <= 5 ? "STOK KRITIS" : "AMAN"
+    }));
+
+    // 3. PROSES PEMBUATAN WORKBOOK
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
-    XLSX.writeFile(wb, `Laporan_Aspro_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    // Sheet 1: Riwayat
+    const ws1 = XLSX.utils.json_to_sheet(dataRiwayat);
+    XLSX.utils.book_append_sheet(wb, ws1, "Riwayat");
+
+    // Sheet 2: Ringkasan Stok
+    const ws2 = XLSX.utils.json_to_sheet(dataStok);
+    XLSX.utils.book_append_sheet(wb, ws2, "Ringkasan_Stok");
+
+    // 4. DOWNLOAD FILE
+    XLSX.writeFile(wb, `Laporan_Aspro_Lengkap_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
